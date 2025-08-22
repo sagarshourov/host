@@ -9,6 +9,9 @@ class YoureHomeAPI {
         this.init();
     }
 
+
+    
+
     async init() {
         // Skip auth check on login/signup pages to prevent redirect loops
         const currentPath = window.location.pathname;
