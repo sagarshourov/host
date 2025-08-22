@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Your Property - You're Home</title>
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/components/buttons.css">
+    <link rel="stylesheet" href="../css/layout/header.css">
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                🏠 <a href="/" style="text-decoration: none; color: inherit;">You're Home</a>
+                <div class="tagline">The Future of Real Estate</div>
+            </div>
+            <nav class="nav-links">
+                <a href="/listings.html" class="nav-link">Buy</a>
+                <a href="/sell.html" class="nav-link">Sell</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Help</a>
+                <a href="/login.html" class="nav-link">Log In</a>
+                <a href="/list-property.html" class="btn-primary">List Your Property</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="listing-container">
+        <!-- Header Section -->
+        <div class="listing-header">
+            <h1 class="listing-title">List your home</h1>
+            <p class="listing-subtitle">Get your property in front of qualified buyers in minutes</p>
+            
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Property Details</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Photos & Description</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Pricing & Review</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <form class="listing-form" id="propertyForm">
+            <!-- Step 1: Property Details -->
+            <div class="form-step active" id="step1">
+                <div class="form-grid">
+                    <!-- Address Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">📍 Property Address</h3>
+                        <div class="form-group">
+                            <label for="address">Street Address *</label>
+                            <input type="text" id="address" name="address" required placeholder="123 Main Street">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City *</label>
+                                <input type="text" id="city" name="city" required placeholder="Atlantic City">
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State *</label>
+                                <select id="state" name="state" required>
+                                    <option value="">Select State</option>
+                                    <option value="NJ" selected>New Jersey</option>
+                                    <option value="NY">New York</option>
+                                    <option value="PA">Pennsylvania</option>
+                                    <option value="DE">Delaware</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="zip">ZIP Code *</label>
+                                <input type="text" id="zip" name="zip" required placeholder="08401" pattern="[0-9]{5}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Details -->
+                    <div class="form-section">
+                        <h3 class="section-title">🏠 Property Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="propertyType">Property Type *</label>
+                                <select id="propertyType" name="propertyType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="house">Single Family House</option>
+                                    <option value="condo">Condominium</option>
+                                    <option value="townhouse">Townhouse</option>
+                                    <option value="multi-family">Multi-Family</option>
+                                    <option value="land">Land/Lot</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="yearBuilt">Year Built</label>
+                                <input type="number" id="yearBuilt" name="yearBuilt" min="1800" max="2025" placeholder="2020">
+                            </div>
+                            <div class="form-group">
+                                <label for="sqft">Square Feet *</label>
+                                <input type="number" id="sqft" name="sqft" required placeholder="1,850">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bedrooms">Bedrooms *</label>
+                                <select id="bedrooms" name="bedrooms" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6+">6+</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bathrooms">Bathrooms *</label>
+                                <select id="bathrooms" name="bathrooms" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="1.5">1.5</option>
+                                    <option value="2">2</option>
+                                    <option value="2.5">2.5</option>
+                                    <option value="3">3</option>
+                                    <option value="3.5">3.5</option>
+                                    <option value="4+">4+</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="lotSize">Lot Size</label>
+                                <input type="text" id="lotSize" name="lotSize" placeholder="0.25 acres or 10,890 sqft">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Home Systems & Condition -->
+                    <div class="form-section">
+                        <h3 class="section-title">🔧 Property Systems & Improvements</h3>
+                        
+                        <!-- HVAC System -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hvac_type">HVAC Type</label>
+                                <select name="hvac_type" id="hvac_type">
+                                    <option value="">Select Type</option>
+                                    <option value="Central Air">Central Air</option>
+                                    <option value="Forced Air">Forced Air</option>
+                                    <option value="Heat Pump">Heat Pump</option>
+                                    <option value="Baseboard">Baseboard</option>
+                                    <option value="Radiant">Radiant</option>
+                                    <option value="Window Units">Window Units</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="hvac_install_year">HVAC Install Year</label>
+                                <input type="date" name="hvac_install_year" id="hvac_install_year">
+                                <small>We'll convert this to year for storage</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Water Heater -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="water_heater_type">Water Heater Type</label>
+                                <select name="water_heater_type" id="water_heater_type">
+                                    <option value="">Select Type</option>
+                                    <option value="Gas">Gas</option>
+                                    <option value="Electric">Electric</option>
+                                    <option value="Tankless">Tankless</option>
+                                    <option value="Solar">Solar</option>
+                                    <option value="Heat Pump">Heat Pump</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="water_heater_year">Water Heater Install Year</label>
+                                <input type="date" name="water_heater_year" id="water_heater_year">
+                            </div>
+                        </div>
+                        
+                        <!-- Roof -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="roof_material">Roof Material</label>
+                                <select name="roof_material" id="roof_material">
+                                    <option value="">Select Material</option>
+                                    <option value="Asphalt Shingle">Asphalt Shingle</option>
+                                    <option value="Metal">Metal</option>
+                                    <option value="Tile">Tile</option>
+                                    <option value="Slate">Slate</option>
+                                    <option value="Flat/Rubber">Flat/Rubber</option>
+                                    <option value="Wood Shake">Wood Shake</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="roof_year">Roof Replacement Year</label>
+                                <input type="date" name="roof_year" id="roof_year">
+                            </div>
+                        </div>
+                        
+                        <!-- Septic System -->
+                        <div class="form-row">
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="has_septic" name="has_septic" onchange="toggleSepticFields()">
+                                    Property has septic system
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="septic_fields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="septic_type">Septic Type</label>
+                                    <input type="text" id="septic_type" name="septic_type" placeholder="e.g., Conventional, Aerobic">
+                                </div>
+                                <div class="form-group">
+                                    <label for="septic_last_pumped">Septic Last Pumped</label>
+                                    <input type="date" id="septic_last_pumped" name="septic_last_pumped">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Solar Panels -->
+                        <div class="form-row">
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="has_solar" name="has_solar" onchange="toggleSolarFields()">
+                                    Property has solar panels
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="solar_fields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="solar_type">Solar Ownership</label>
+                                    <select id="solar_type" name="solar_type">
+                                        <option value="">Select...</option>
+                                        <option value="owned">Owned</option>
+                                        <option value="leased">Leased</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="solar_install_year">Solar Install Year</label>
+                                    <input type="date" id="solar_install_year" name="solar_install_year">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="solar_monthly_savings">Monthly Savings</label>
+                                    <input type="number" id="solar_monthly_savings" name="solar_monthly_savings" 
+                                        placeholder="$0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Property Condition -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="property_condition">Property Condition</label>
+                                <select id="property_condition" name="property_condition">
+                                    <option value="move-in-ready">Move-in Ready</option>
+                                    <option value="needs-work">Needs Some Work</option>
+                                    <option value="as-is">As-Is / Fixer Upper</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="major_repairs_needed">Major Repairs Needed</label>
+                                <textarea id="major_repairs_needed" name="major_repairs_needed" rows="2" 
+                                    placeholder="List any major repairs needed"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- AS-IS Sale -->
+                        <div class="as-is-section">
+                            <label class="as-is-label">
+                                <input type="checkbox" name="is_as_is" id="is_as_is">
+                                <div class="as-is-content">
+                                    <strong>Selling property AS-IS</strong>
+                                    <small>Check if property is being sold in its current condition without repairs</small>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Property Disclosures -->
+                        <div class="disclosure-section">
+                            <label for="property_disclosures">Property Disclosures & Additional Information</label>
+                            <textarea name="property_disclosures" id="property_disclosures" 
+                                      placeholder="Any known issues, recent repairs, or important information buyers should know. Examples: Foundation repairs in 2020, new kitchen appliances 2023, occasional basement moisture during heavy rain, etc."></textarea>
+                        </div>
+
+                        <div class="checkbox-grid">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="condition" value="asIs">
+                                <span class="checkmark">⚠️</span>
+                                Selling "As-Is" (no repairs)
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="condition" value="recentUpdates">
+                                <span class="checkmark">✨</span>
+                                Recent major renovations
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="form-section">
+                        <h3 class="section-title">✨ Property Features</h3>
+                        <div class="checkbox-grid">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="features" value="garage">
+                                <span class="checkmark">🚗</span>
+                                Garage/Parking
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="features" value="pool">
+                                <span class="checkmark">🏊</span>
+                                Pool/Spa
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="features" value="oceanview">
+                                <span class="checkmark">🌊</span>
+                                Ocean View
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="features" value="fireplace">
+                                <span class="checkmark">🔥</span>
+                                Fireplace
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="features" value="deck">
+                                <span class="checkmark">🏡</span>
+                                Deck/Patio
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="features" value="basement">
+                                <span class="checkmark">🏠</span>
+                                Finished Basement
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn-next" onclick="nextStep(1)">Continue to Photos →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Photos & Description -->
+            <div class="form-step" id="step2">
+                <div class="form-grid">
+                    <!-- Photo Upload -->
+                    <div class="form-section">
+                        <h3 class="section-title">📷 Property Photos</h3>
+                        <div class="upload-section">
+                            <div class="upload-area" onclick="document.getElementById('photoUpload').click()">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">
+                                    <strong>Click to upload photos</strong>
+                                    <p>or drag and drop up to 20 photos</p>
+                                </div>
+                                <div class="upload-requirements">
+                                    • JPG, PNG, or HEIC • Max 10MB per photo • Minimum 1 photos required
+                                </div>
+                            </div>
+                            <input type="file" id="photoUpload" multiple accept="image/*" style="display: none;">
+                            
+                            <div class="uploaded-photos" id="uploadedPhotos">
+                                <!-- Uploaded photos will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Description -->
+                    <div class="form-section">
+                        <h3 class="section-title">📝 Property Description</h3>
+                        <div class="form-group">
+                            <label for="description">Describe your property *</label>
+                            <textarea id="description" name="description" rows="6" required 
+                                placeholder="Tell potential buyers about your home's best features, recent updates, neighborhood amenities, and what makes it special..."></textarea>
+                            <div class="character-count">
+                                <span id="charCount">0</span>/2000 characters
+                            </div>
+                        </div>
+
+                        <!-- AI Writing Assistant -->
+                        <div class="ai-assistant">
+                            <div class="ai-header">
+                                <span class="ai-icon">🤖</span>
+                                <strong>AI Writing Assistant</strong>
+                            </div>
+                            <p>Need help writing your description? Our AI can generate a professional description based on your property details.</p>
+                            <button type="button" class="btn-ai" onclick="generateDescription()">✨ Generate Description</button>
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="form-section">
+                        <h3 class="section-title">📋 Additional Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="propertyTax">Annual Property Tax</label>
+                                <input type="text" id="propertyTax" name="propertyTax" placeholder="$12,400">
+                            </div>
+                            <div class="form-group">
+                                <label for="hoaFees">HOA Fees (monthly)</label>
+                                <input type="text" id="hoaFees" name="hoaFees" placeholder="$0 or N/A">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="utilityCosts">Average Monthly Utilities</label>
+                                <input type="text" id="utilityCosts" name="utilityCosts" placeholder="$150-200">
+                            </div>
+                            <div class="form-group">
+                                <label for="schoolDistrict">School District</label>
+                                <input type="text" id="schoolDistrict" name="schoolDistrict" placeholder="Atlantic City School District">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="allowMessages" id="allowMessages" value="true" checked>
+                                <span class="checkmark">✅</span>
+                                Allow buyers to message me directly after submitting offers
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn-back" onclick="prevStep(2)">← Back</button>
+                    <button type="button" class="btn-next" onclick="nextStep(2)">Continue to Pricing →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Pricing & Review -->
+            <div class="form-step" id="step3">
+                <div class="form-grid">
+                    <!-- AI Home Valuation -->
+                    <div class="form-section">
+                        <h3 class="section-title">🤖 AI Home Valuation</h3>
+                        <div class="valuation-intro">
+                            <p>Get an instant estimate of your home's market value based on recent comparable sales and property details.</p>
+                            <button type="button" class="btn-valuation" onclick="generateHomeValuation()">🔍 Get My Home Value</button>
+                        </div>
+
+                        <div class="valuation-results" id="valuationResults" style="display: none;">
+                            <div class="valuation-card">
+                                <div class="valuation-header">
+                                    <div class="valuation-icon">🏠</div>
+                                    <div class="valuation-info">
+                                        <div class="valuation-title">Your Home's Estimated Value</div>
+                                        <div class="valuation-range" id="valuationRange">$450,000 - $520,000</div>
+                                        <div class="valuation-recommended" id="valuationRecommended">Recommended List: $485,000</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="valuation-breakdown">
+                                    <div class="breakdown-item">
+                                        <span class="breakdown-label">Price per sq ft:</span>
+                                        <span class="breakdown-value" id="pricePerSqft">$262</span>
+                                    </div>
+                                    <div class="breakdown-item">
+                                        <span class="breakdown-label">Comparable sales:</span>
+                                        <span class="breakdown-value" id="comparableSales">8 recent sales</span>
+                                    </div>
+                                    <div class="breakdown-item">
+                                        <span class="breakdown-label">Market trend:</span>
+                                        <span class="breakdown-value trend-up" id="marketTrend">↗️ +3.2% (3 months)</span>
+                                    </div>
+                                    <div class="breakdown-item">
+                                        <span class="breakdown-label">Confidence level:</span>
+                                        <span class="breakdown-value confidence" id="confidenceLevel">87%</span>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn-use-valuation" onclick="useRecommendedPrice()">✅ Use Recommended Price</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">💰 Set Your Listing Price</h3>
+                        <div class="pricing-input-group">
+                            <label for="listPrice">Your List Price *</label>
+                            <input type="text" id="listPrice" name="listPrice" required placeholder="$485,000" class="price-input-xl">
+                            <div class="pricing-help">
+                                <small>💡 Tip: Price competitively within your estimated value range for faster sale</small>
+                            </div>
+                        </div>
+
+                        <div class="minimum-offer-group">
+                            <label for="minimumOffer">Minimum Acceptable Offer *</label>
+                            <input type="text" id="minimumOffer" name="minimumOffer" required placeholder="$460,000" class="price-input-large">
+                            <div class="minimum-help">
+                                <small>🎯 Offers below this amount will be automatically declined</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fee Structure -->
+                    <div class="form-section">
+                        <h3 class="section-title">💳 Choose Your Fee Structure</h3>
+                        <div class="fee-breakdown">
+                            <!-- Option 1: Seller pays all -->
+                            <label class="fee-option-card active" for="sellerPaysAll">
+                                <input type="radio" name="feeStructure" value="seller-pays-all" id="sellerPaysAll" checked>
+                                <div class="fee-option-content">
+                                    <div class="fee-option-header">
+                                        <strong class="fee-option-title">You cover all fees</strong>
+                                        <span class="fee-badge-popular">MOST POPULAR</span>
+                                    </div>
+                                    <div class="fee-breakdown-row">
+                                        <span class="fee-label">You pay:</span>
+                                        <strong class="fee-amount-seller" id="sellerFeeAll">2.5% ($9,700)</strong>
+                                    </div>
+                                    <div class="fee-breakdown-row">
+                                        <span class="fee-label">Buyer pays:</span>
+                                        <strong class="fee-amount-free" id="buyerFeeAll">$0</strong>
+                                    </div>
+                                    <div class="fee-benefit-text">✅ Maximum buyer interest • Fastest sale</div>
+                                </div>
+                            </label>
+
+                            <!-- Option 2: Split fees -->
+                            <label class="fee-option-card" for="splitEqual">
+                                <input type="radio" name="feeStructure" value="split-equal" id="splitEqual">
+                                <div class="fee-option-content">
+                                    <div class="fee-option-header">
+                                        <strong class="fee-option-title">Split fees 50/50</strong>
+                                    </div>
+                                    <div class="fee-breakdown-row">
+                                        <span class="fee-label">You pay:</span>
+                                        <strong class="fee-amount-seller" id="sellerFeeHalf">1.25% ($6,063)</strong> <!-- CHANGED FROM 1.0% -->
+                                    </div>
+                                    <div class="fee-breakdown-row">
+                                        <span class="fee-label">Buyer pays:</span>
+                                        <strong class="fee-amount-buyer" id="buyerFeeHalf">1.25% ($6,063)</strong> <!-- CHANGED FROM 1.0% -->
+                                    </div>
+                                    <div class="fee-warning-text">⚠️ May reduce buyer interest by 20-30%</div>
+                                </div>
+                            </label>
+
+                            <label class="fee-option-card" for="customSplit">
+                                <input type="radio" name="feeStructure" value="custom-split" id="customSplit">
+                                <div class="fee-option-content">
+                                    <div class="fee-option-header">
+                                        <strong class="fee-option-title">Custom split</strong>
+                                    </div>
+                                    
+                                    <div class="custom-fee-controls">
+                                        <div class="fee-slider-group">
+                                            <label for="sellerSplit">You pay: <span id="sellerPercentage">1.25</span>%</label>
+                                            <input type="range" id="sellerSplit" class="split-slider" min="0" max="2.5" step="0.1" value="1.25">
+                                        </div>
+                                        <div class="buyer-display">
+                                            <span>Buyer pays: <span id="buyerPercentage">1.25</span>%</span>
+                                        </div>
+                                        <!-- REMOVED THE EXTRA </div> THAT WAS HERE -->
+                                        <div class="fee-visual-bar">
+                                            <div class="fee-bar-seller" id="feeBarSeller" style="width: 50%;"></div>
+                                            <div class="fee-bar-buyer" id="feeBarBuyer" style="width: 50%;"></div>
+                                        </div>
+                                        <div class="fee-amounts-custom">
+                                            <span class="custom-seller-amount" id="sellerFeeCustom">$6,063</span>
+                                            <span class="custom-buyer-amount" id="buyerFeeCustom">$6,063</span>
+                                        </div>
+                                    </div> <!-- This closes custom-fee-controls -->
+                                    
+                                    <div class="fee-danger-text" id="buyerImpact">⚠️ Estimated 15-25% reduction in buyer interest</div>
+                                </div> <!-- This closes fee-option-content -->
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Payout Calculator -->
+                    <div class="form-section">
+                        <h3 class="section-title">💵 Your Estimated Payout</h3>
+                        <div class="payout-calculator" id="payoutCalculator">
+                            <div class="payout-summary">
+                                <div class="payout-row main">
+                                    <span>Sale Price:</span>
+                                    <span class="payout-amount" id="salePrice">$485,000</span>
+                                </div>
+                                <div class="payout-row">
+                                    <span>Your fee:</span>
+                                    <span class="payout-deduction" id="yourFeeDeduction">-$9,700</span>
+                                </div>
+                                <div class="payout-row">
+                                    <span>Est. closing costs:</span>
+                                    <span class="payout-deduction" id="closingCosts">-$2,425</span>
+                                </div>
+                                <div class="payout-divider"></div>
+                                <div class="payout-row total">
+                                    <span><strong>Your Net Payout:</strong></span>
+                                    <span class="payout-amount net" id="netPayout">$472,875</span>
+                                </div>
+                                <div class="payout-percentage">
+                                    <span id="payoutPercent">97.5%</span> of sale price
+                                </div>
+                            </div>
+                            
+                            <div class="payout-comparison">
+                                <div class="comparison-title">💡 Savings vs Traditional Real Estate</div>
+                                <div class="comparison-row">
+                                    <span>Traditional 6% fees:</span>
+                                    <span class="comparison-loss">-$29,100</span>
+                                </div>
+                                <div class="comparison-row savings">
+                                    <span><strong>You save:</strong></span>
+                                    <span class="comparison-savings" id="totalSavings">+$19,400</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review & Submit -->
+                    <div class="form-section">
+                        <h3 class="section-title">📋 Review Your Listing</h3>
+                        <div class="listing-preview" id="listingPreview">
+                            <p>Complete all sections above to see your listing preview.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn-back" onclick="prevStep(3)">← Back</button>
+                    <button type="button" class="btn-submit" onclick="submitPropertyListing()">
+                        🚀 Publish Listing
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Support Section -->
+        <div class="support-section">
+            <div class="support-card">
+                <div class="support-icon">📞</div>
+                <div class="support-content">
+                    <h4>Need help listing your property?</h4>
+                    <p>Our team is here to help you create the perfect listing</p>
+                    <a href="#" class="support-link">Call (855) YOU-HOME</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Buy</h4>
+                    <a href="/listings">Search Homes</a>
+                    <a href="#">Buyer Guide</a>
+                    <a href="#">Financing</a>
+                    <a href="#">Market Reports</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Sell</h4>
+                    <a href="/list-property">List Your Home</a>
+                    <a href="#">Seller Guide</a>
+                    <a href="#">Home Valuation</a>
+                    <a href="#">Pricing Strategy</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">How It Works</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#">Help Center</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Legal</a>
+                    <a href="#">Privacy</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 You're Home. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+  
+
+     <!-- Load API.js on every page that needs auth -->
+    <script src="/js/utils/api.js"></script>
+    <script src="/js/utils/navigation-fix.js"></script>
+    <script src="/js/components/list-property.js"></script>
+</body>
+
+</html>
