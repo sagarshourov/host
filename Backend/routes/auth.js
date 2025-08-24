@@ -52,7 +52,7 @@ const generateToken = (userId) => {
 router.post('/register', async (req, res) => {
     console.log('🔵 Registration endpoint hit');  // ADD THIS
     console.log('📦 Request body:', req.body);     // ADD THIS
-    
+
     try {
         const { email, password, firstName, lastName, phone, userType = 'buyer' } = req.body;
         console.log('📧 Processing registration for:', email);
@@ -101,11 +101,11 @@ router.post('/register', async (req, res) => {
 
         // Generate JWT token with timestamp to ensure uniqueness
         const token = jwt.sign(
-            { 
+            {
                 userId: user.id,
                 timestamp: Date.now() // Add timestamp to make token unique
-            }, 
-            JWT_SECRET, 
+            },
+            JWT_SECRET,
             { expiresIn: '30d' }
         );
 
@@ -186,11 +186,11 @@ router.post('/login', async (req, res) => {
 
         // Generate JWT token with timestamp to ensure uniqueness
         const token = jwt.sign(
-            { 
+            {
                 userId: user.id,
                 timestamp: Date.now() // Add timestamp to make token unique
-            }, 
-            JWT_SECRET, 
+            },
+            JWT_SECRET,
             { expiresIn: '30d' }
         );
 
@@ -225,7 +225,8 @@ router.post('/login', async (req, res) => {
                 lastName: user.last_name,
                 phone: user.phone,
                 userType: user.user_type,
-                isVerified: user.email_verified  // Map to frontend expectation
+                isVerified: user.email_verified,// Map to frontend expectation,
+                token: token  // Include token in response body
             }
         });
 
@@ -401,9 +402,9 @@ router.put('/pre-approval', authenticateToken, async (req, res) => {
 
     } catch (error) {
         console.error('Pre-approval update error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Internal server error' 
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error'
         });
     }
 });
