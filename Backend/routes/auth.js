@@ -134,6 +134,7 @@ router.post('/register', async (req, res) => {
                 lastName: user.last_name,
                 phone: user.phone,
                 userType: user.user_type,
+                token: token,
                 isVerified: user.email_verified  // Map to frontend expectation
             }
         });
@@ -321,7 +322,8 @@ router.get('/verify', async (req, res) => {
                 lastName: user.last_name,
                 phone: user.phone,
                 userType: user.user_type,
-                isVerified: user.email_verified  // Map to frontend expectation
+                isVerified: user.email_verified, // Map to frontend expectation,
+                token: token
             }
         });
 
