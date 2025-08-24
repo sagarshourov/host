@@ -1,0 +1,453 @@
+.savings-calculator {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 3rem auto;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.calculator-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.calculator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.price-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.price-input-group label {
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 14px;
+}
+
+.price-input-large {
+    padding: 16px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.price-input-large:focus {
+    outline: none;
+    border-color: #22c55e;
+}
+
+.savings-results {
+    text-align: center;
+}
+
+.savings-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.traditional-cost,
+.youre-home-cost {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 2px solid;
+}
+
+.traditional-cost {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.youre-home-cost {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.cost-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.cost-amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ef4444;
+}
+
+.cost-amount.green {
+    color: #22c55e;
+}
+
+.vs-divider {
+    font-weight: 700;
+    color: #6b7280;
+    font-size: 18px;
+}
+
+.total-savings {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.savings-amount {
+    color: #22c55e;
+    font-size: 1.5rem;
+}
+
+.benefits-section {
+    padding: 5rem 2rem;
+    background: #f8fafc;
+}
+
+.benefits-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.benefits-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.benefits-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+}
+
+.benefits-subtitle {
+    font-size: 1.2rem;
+    color: #4a5568;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.benefit-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.benefit-card:hover {
+    transform: translateY(-4px);
+    border-color: #22c55e;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.benefit-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+}
+
+.benefit-description {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.benefit-highlight {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #bbf7d0;
+}
+
+.how-it-works-section {
+    padding: 5rem 2rem;
+    background: white;
+}
+
+.how-it-works-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-title-center {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle-center {
+    font-size: 1.2rem;
+    color: #4a5568;
+    text-align: center;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.step-card {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: #22c55e;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem;
+}
+
+.step-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+}
+
+.step-description {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.step-time {
+    background: #f1f5f9;
+    color: #1a1a1a;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.success-stories-section {
+    padding: 5rem 2rem;
+    background: #f8fafc;
+}
+
+.success-stories-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.story-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.story-quote {
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.story-author {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.author-name {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.25rem;
+}
+
+.author-location {
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.story-savings {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #bbf7d0;
+}
+
+.faq-section {
+    padding: 5rem 2rem;
+    background: white;
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 3rem;
+}
+
+.faq-item {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: #22c55e;
+}
+
+.faq-question {
+    padding: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.faq-question::after {
+    content: '+';
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: #22c55e;
+    transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-question::after {
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.faq-answer {
+    padding: 0 1.5rem 1.5rem;
+    color: #4a5568;
+    line-height: 1.6;
+    display: none;
+}
+
+.faq-item.open .faq-answer {
+    display: block;
+}
+
+.final-cta-section {
+    padding: 5rem 2rem;
+    background: #1a1a1a;
+    color: white;
+}
+
+.final-cta-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.final-cta-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.final-cta-subtitle {
+    font-size: 1.2rem;
+    color: #9ca3af;
+    margin-bottom: 3rem;
+}
+
+.final-cta-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.cta-stat {
+    text-align: center;
+}
+
+.cta-stat .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #22c55e;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.cta-stat .stat-label {
+    font-size: 14px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.final-cta-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.cta-guarantee {
+    color: #9ca3af;
+    font-size: 14px;
+}

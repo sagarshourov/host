@@ -105,7 +105,7 @@ router.get('/', async (req, res) => {
         // Get photos for each property
         for (let property of result.rows) {
             const photosResult = await pool.query(
-                'SELECT file_url, is_main_photo, display_order FROM property_photos WHERE property_id = $1 ORDER BY display_order',
+                'SELECT photo_url, is_main, photo_order FROM property_photos WHERE property_id = $1 ORDER BY photo_order',
                 [property.id]
             );
             property.photos = photosResult.rows;
@@ -148,7 +148,7 @@ router.get('/:id', async (req, res) => {
 
         // Get photos
         const photosResult = await pool.query(
-            'SELECT file_url, is_main_photo, display_order FROM property_photos WHERE property_id = $1 ORDER BY display_order',
+            'SELECT photo_url, is_main_photo, photo_order FROM property_photos WHERE property_id = $1 ORDER BY photo_order',
             [id]
         );
         property.photos = photosResult.rows;
@@ -513,10 +513,7 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
             WHERE p.seller_id = $1
             GROUP BY p.id
             ORDER BY p.listed_date DESC
-        `,  [req.user.userId]);
-
-        //   const result = await pool.query(`SELECT * FROM properties p WHERE p.seller_id = $1 ORDER BY p.listed_date DESC`, [req.user.userId]);
-
+        `, [1]);
 
         res.json({
             success: true,
@@ -529,6 +526,7 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error });
     }
 });
+
 // DELETE /api/properties/:id - Delete property
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
