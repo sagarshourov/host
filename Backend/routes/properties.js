@@ -504,18 +504,16 @@ router.put('/:id', authenticateToken, async (req, res) => {
 // GET /api/properties/seller/my-listings - Get seller's properties
 router.get('/seller/my-listings', authenticateToken, async (req, res) => {
     try {
-        // const result = await pool.query(`
-        //     SELECT p.*, 
-        //            COUNT(o.id) as offer_count,
-        //            (SELECT file_url FROM property_photos WHERE property_id = p.id AND is_main_photo = TRUE LIMIT 1) as main_photo
-        //     FROM properties p
-        //     LEFT JOIN offers o ON p.id = o.property_id AND o.status = 'pending'
-        //     WHERE p.seller_id = $1
-        //     GROUP BY p.id
-        //     ORDER BY p.listed_date DESC
-        // `, [1]);
-
-        const result = await pool.query(`SELECT * FROM properties p WHERE p.seller_id = $1 ORDER BY p.listed_date DESC`, [req.user.userId]);
+        const result = await pool.query(`
+            SELECT p.*, 
+                   COUNT(o.id) as offer_count,
+                   (SELECT photo_url FROM property_photos WHERE property_id = p.id AND is_main = TRUE LIMIT 1) as main_photo
+            FROM properties p
+            LEFT JOIN offers o ON p.id = o.property_id AND o.status = 'pending'
+            WHERE p.seller_id = $1
+            GROUP BY p.id
+            ORDER BY p.listed_date DESC
+        `, [1]);
 
         res.json({
             success: true,
@@ -528,7 +526,6 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error });
     }
 });
-
 // DELETE /api/properties/:id - Delete property
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
