@@ -522,7 +522,7 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
 
 
     } catch (error) {
-        console.error('Get seller properties error:', error);
+        ///console.error('Get seller properties error:', error);
         res.status(500).json({ success: false, error: error });
     }
 });
