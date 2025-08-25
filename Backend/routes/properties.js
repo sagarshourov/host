@@ -513,7 +513,7 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
             WHERE p.seller_id = $1
             GROUP BY p.id
             ORDER BY p.listed_date DESC
-        `, [1]);
+        `, [req.user.userId]);
 
         res.json({
             success: true,
