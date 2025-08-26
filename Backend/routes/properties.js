@@ -5,6 +5,11 @@ const express = require('express');
 const { Pool } = require('pg');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
+const path = require('path');
+const multer = require('multer');
+
+const fs = require('fs');
+
 
 // Database connection
 const pool = new Pool({
@@ -148,7 +153,7 @@ router.get('/:id', async (req, res) => {
 
         // Get photos
         const photosResult = await pool.query(
-            'SELECT photo_url, is_main_photo, photo_order FROM property_photos WHERE property_id = $1 ORDER BY photo_order',
+            'SELECT photo_url, is_main, photo_order FROM property_photos WHERE property_id = $1 ORDER BY photo_order',
             [id]
         );
         property.photos = photosResult.rows;
@@ -223,7 +228,8 @@ router.post('/', authenticateToken, async (req, res) => {
             hasPool,
             hasFireplace,
             allowMessages,
-            minimumOffer
+            minimumOffer,
+            uploadedPhotos = []
         } = req.body;
 
         // Validate required fields
@@ -274,6 +280,40 @@ router.post('/', authenticateToken, async (req, res) => {
         ]);
 
         const property = result.rows[0];
+
+        const propertyId = property.id;
+
+        // Insert photos if provided
+        if (uploadedPhotos && uploadedPhotos.length > 0) {
+            // Validate that uploadedPhotos is an array of strings
+            if (!Array.isArray(uploadedPhotos)) {
+                throw new Error('uploadedPhotos must be an array');
+            }
+
+            // Prepare photo insert queries
+            for (let i = 0; i < uploadedPhotos.length; i++) {
+                const photoPath = uploadedPhotos[i];
+
+                if (typeof photoPath !== 'string') {
+                    throw new Error('Each photo path must be a string');
+                }
+
+                // First photo is the main photo by default
+                const isMain = i === 0;
+
+                await pool.query(`
+                    INSERT INTO property_photos (
+                        property_id, photo_url, photo_order, is_main, caption
+                    ) VALUES ($1, $2, $3, $4, $5)
+                `, [
+                    propertyId,
+                    photoPath,
+                    i + 1, // photo_order starts at 1
+                    isMain,
+                    null // caption can be null or you can extract from filename
+                ]);
+            }
+        }
 
         res.json({
             success: true,
@@ -522,7 +562,7 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
 
 
     } catch (error) {
-        ///console.error('Get seller properties error:', error);
+        //  console.error('Get seller properties error:', error);
         res.status(500).json({ success: false, error: error });
     }
 });
@@ -559,5 +599,74 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
+
+
+const uploadsDir = path.join(__dirname, './uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        // Generate unique filename with original extension
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+
+
+const fileFilter = (req, file, cb) => {
+    // Allow only image files
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed!'), false);
+    }
+};
+
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: fileFilter
+});
+
+
+
+router.post('/upload', upload.array('photos', 20), (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: 'No files uploaded' });
+        }
+
+        // Process the uploaded files
+        const fileDetails = req.files.map(file => ({
+            filename: file.filename,
+            originalName: file.originalname,
+            size: file.size,
+            mimetype: file.mimetype,
+            path: file.path
+        }));
+
+        res.json({
+            message: 'Files uploaded successfully',
+            uploadedCount: req.files.length,
+            files: fileDetails
+        });
+    } catch (error) {
+        console.error('Upload error:', error);
+        res.status(500).json({ error: 'Failed to upload files' });
+    }
+});
+
+
+
 
 module.exports = router;
