@@ -21,11 +21,7 @@ router.post('/', authenticateToken, async (req, res) => {
         const {
             propertyId,
             offerAmount,
-            earnestMoney,
             financingType,
-            inspectionDays,
-            financingDays,
-            closingDays,
             buyerMessage,
             inspectionContingency,
             financingContingency,
@@ -34,9 +30,10 @@ router.post('/', authenticateToken, async (req, res) => {
 
         // Validate required fields
         if (!propertyId || !offerAmount) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Property ID and offer amount are required' 
+            return res.status(400).json({
+                success: false,
+
+                error: 'Property ID and offer amount are required'
             });
         }
 
@@ -47,9 +44,9 @@ router.post('/', authenticateToken, async (req, res) => {
         );
 
         if (propertyResult.rows.length === 0) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Property not found or not available' 
+            return res.status(404).json({
+                success: false,
+                error: 'Property not found or not available'
             });
         }
 
@@ -57,34 +54,30 @@ router.post('/', authenticateToken, async (req, res) => {
 
         // Check if buyer is trying to buy their own property
         if (property.seller_id === req.user.userId) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Cannot submit offer on your own property' 
+            return res.status(400).json({
+                success: false,
+                error: 'Cannot submit offer on your own property'
             });
         }
 
         // Validate minimum offer (50% rule)
         const minimumOffer = property.minimum_offer || property.list_price * 0.5;
         if (offerAmount < minimumOffer) {
-            return res.status(400).json({ 
-                success: false, 
-                error: `Offer must be at least $${minimumOffer.toLocaleString()}` 
+            return res.status(400).json({
+                success: false,
+                error: `Offer must be at least $${minimumOffer.toLocaleString()}`
             });
         }
 
         // Create the offer
         const result = await pool.query(`
             INSERT INTO offers (
-                property_id, buyer_id, offer_amount, earnest_money,
-                financing_type, inspection_days, financing_days, closing_days,
-                buyer_message, inspection_contingency, financing_contingency, appraisal_contingency
+                property_id, buyer_id, offer_amount, financing_type, buyer_message, inspection_contingency, financing_contingency, appraisal_contingency
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) RETURNING *
         `, [
-            propertyId, req.user.userId, offerAmount, earnestMoney,
-            financingType, inspectionDays || 10, financingDays || 30, closingDays || 45,
-            buyerMessage, inspectionContingency !== false, financingContingency !== false, appraisalContingency !== false
+            propertyId, req.user.userId, offerAmount, financingType, buyerMessage, inspectionContingency !== false, financingContingency !== false, appraisalContingency !== false
         ]);
 
         const offer = result.rows[0];
@@ -129,28 +122,37 @@ router.get('/property/:propertyId', authenticateToken, async (req, res) => {
         }
 
         const result = await pool.query(`
-            SELECT o.*, u.first_name, u.last_name, u.email, u.phone, u.pre_approval_amount, u.lender_name
+            SELECT o.*, u.first_name, u.last_name, u.email, u.phone, u.pre_approval_amount
             FROM offers o
             JOIN users u ON o.buyer_id = u.id
             WHERE o.property_id = $1
-            ORDER BY o.submitted_at DESC
+            ORDER BY o.created_at DESC
         `, [propertyId]);
 
         // Calculate offer strength for each offer
-        const propertyPriceResult = await pool.query('SELECT list_price FROM properties WHERE id = $1', [propertyId]);
+        const propertyPriceResult = await pool.query('SELECT street_address,city,state,zip_code,list_price FROM properties WHERE id = $1', [propertyId]);
         const listPrice = propertyPriceResult.rows[0]?.list_price || 0;
+        const streetAddress = propertyPriceResult.rows[0]?.street_address || 0;
+        const city = propertyPriceResult.rows[0]?.city || 0;
+        const state = propertyPriceResult.rows[0]?.state || 0;
+        const zip_code = propertyPriceResult.rows[0]?.zip_code || 0;
 
         const offersWithStrength = result.rows.map(offer => {
             let strength = 'weak';
             const offerPercentage = (offer.offer_amount / listPrice) * 100;
-            
+
             if (offerPercentage >= 95) strength = 'strong';
             else if (offerPercentage >= 85) strength = 'fair';
-            
+
             return {
                 ...offer,
                 strength,
                 offerPercentage: offerPercentage.toFixed(1),
+                streetAddress: streetAddress,
+                zip_code: zip_code,
+                state: state,
+                city: city,
+
                 buyer: {
                     firstName: offer.first_name,
                     lastName: offer.last_name,
@@ -203,9 +205,9 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
         const { action, counterAmount, sellerResponse } = req.body;
 
         if (!['accept', 'reject', 'counter'].includes(action)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Invalid action. Must be accept, reject, or counter' 
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid action. Must be accept, reject, or counter'
             });
         }
 
@@ -258,9 +260,9 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
 
         } else { // counter
             if (!counterAmount || counterAmount <= 0) {
-                return res.status(400).json({ 
-                    success: false, 
-                    error: 'Counter amount is required for counter offers' 
+                return res.status(400).json({
+                    success: false,
+                    error: 'Counter amount is required for counter offers'
                 });
             }
 

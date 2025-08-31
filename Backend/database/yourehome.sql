@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.6 (Homebrew)
+-- Dumped from database version 17.6 (Debian 17.6-1.pgdg12+1)
 -- Dumped by pg_dump version 17.5
 
--- Started on 2025-08-22 21:53:59 +06
+-- Started on 2025-08-28 21:24:14 +06
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -20,7 +20,17 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 233 (class 1255 OID 17840)
+-- TOC entry 5 (class 2615 OID 2200)
+-- Name: public; Type: SCHEMA; Schema: -; Owner: sagarroy
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO sagarroy;
+
+--
+-- TOC entry 242 (class 1255 OID 16571)
 -- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: sagarroy
 --
 
@@ -37,7 +47,7 @@ $$;
 ALTER FUNCTION public.update_updated_at_column() OWNER TO sagarroy;
 
 --
--- TOC entry 229 (class 1259 OID 17830)
+-- TOC entry 229 (class 1259 OID 16561)
 -- Name: active_listings; Type: VIEW; Schema: public; Owner: sagarroy
 --
 
@@ -115,7 +125,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 224 (class 1259 OID 17747)
+-- TOC entry 224 (class 1259 OID 16478)
 -- Name: messages; Type: TABLE; Schema: public; Owner: sagarroy
 --
 
@@ -137,7 +147,7 @@ CREATE TABLE public.messages (
 ALTER TABLE public.messages OWNER TO sagarroy;
 
 --
--- TOC entry 223 (class 1259 OID 17746)
+-- TOC entry 223 (class 1259 OID 16477)
 -- Name: messages_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
 --
 
@@ -153,7 +163,7 @@ CREATE SEQUENCE public.messages_id_seq
 ALTER SEQUENCE public.messages_id_seq OWNER TO sagarroy;
 
 --
--- TOC entry 3956 (class 0 OID 0)
+-- TOC entry 3501 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
 --
@@ -162,7 +172,7 @@ ALTER SEQUENCE public.messages_id_seq OWNED BY public.messages.id;
 
 
 --
--- TOC entry 222 (class 1259 OID 17719)
+-- TOC entry 222 (class 1259 OID 16450)
 -- Name: offers; Type: TABLE; Schema: public; Owner: sagarroy
 --
 
@@ -198,7 +208,7 @@ CREATE TABLE public.offers (
 ALTER TABLE public.offers OWNER TO sagarroy;
 
 --
--- TOC entry 221 (class 1259 OID 17718)
+-- TOC entry 221 (class 1259 OID 16449)
 -- Name: offers_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
 --
 
@@ -214,7 +224,7 @@ CREATE SEQUENCE public.offers_id_seq
 ALTER SEQUENCE public.offers_id_seq OWNER TO sagarroy;
 
 --
--- TOC entry 3957 (class 0 OID 0)
+-- TOC entry 3502 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: offers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
 --
@@ -223,7 +233,7 @@ ALTER SEQUENCE public.offers_id_seq OWNED BY public.offers.id;
 
 
 --
--- TOC entry 220 (class 1259 OID 17686)
+-- TOC entry 220 (class 1259 OID 16417)
 -- Name: properties; Type: TABLE; Schema: public; Owner: sagarroy
 --
 
@@ -285,16 +295,6 @@ CREATE TABLE public.properties (
     save_count integer DEFAULT 0,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    hvac_install_date date,
-    water_heater_date date,
-    roof_replacement_date date,
-    roof_type character varying(100),
-    septic_last_serviced date,
-    septic_notes text,
-    solar_ownership character varying(20),
-    solar_monthly_payment numeric(10,2),
-    is_as_is boolean DEFAULT false,
-    property_disclosures text,
     CONSTRAINT properties_status_check CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'pending'::character varying, 'sold'::character varying, 'paused'::character varying, 'expired'::character varying])::text[])))
 );
 
@@ -302,7 +302,7 @@ CREATE TABLE public.properties (
 ALTER TABLE public.properties OWNER TO sagarroy;
 
 --
--- TOC entry 219 (class 1259 OID 17685)
+-- TOC entry 219 (class 1259 OID 16416)
 -- Name: properties_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
 --
 
@@ -318,7 +318,7 @@ CREATE SEQUENCE public.properties_id_seq
 ALTER SEQUENCE public.properties_id_seq OWNER TO sagarroy;
 
 --
--- TOC entry 3958 (class 0 OID 0)
+-- TOC entry 3503 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: properties_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
 --
@@ -327,7 +327,7 @@ ALTER SEQUENCE public.properties_id_seq OWNED BY public.properties.id;
 
 
 --
--- TOC entry 230 (class 1259 OID 17835)
+-- TOC entry 230 (class 1259 OID 16566)
 -- Name: properties_with_system_status; Type: VIEW; Schema: public; Owner: sagarroy
 --
 
@@ -414,50 +414,7 @@ CREATE VIEW public.properties_with_system_status AS
 ALTER VIEW public.properties_with_system_status OWNER TO sagarroy;
 
 --
--- TOC entry 232 (class 1259 OID 17847)
--- Name: property_improvements; Type: TABLE; Schema: public; Owner: sagarroy
---
-
-CREATE TABLE public.property_improvements (
-    id integer NOT NULL,
-    property_id integer,
-    improvement_type character varying(100),
-    improvement_date date,
-    improvement_cost numeric(10,2),
-    improvement_description text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE public.property_improvements OWNER TO sagarroy;
-
---
--- TOC entry 231 (class 1259 OID 17846)
--- Name: property_improvements_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
---
-
-CREATE SEQUENCE public.property_improvements_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.property_improvements_id_seq OWNER TO sagarroy;
-
---
--- TOC entry 3959 (class 0 OID 0)
--- Dependencies: 231
--- Name: property_improvements_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
---
-
-ALTER SEQUENCE public.property_improvements_id_seq OWNED BY public.property_improvements.id;
-
-
---
--- TOC entry 226 (class 1259 OID 17783)
+-- TOC entry 226 (class 1259 OID 16514)
 -- Name: property_photos; Type: TABLE; Schema: public; Owner: sagarroy
 --
 
@@ -475,7 +432,7 @@ CREATE TABLE public.property_photos (
 ALTER TABLE public.property_photos OWNER TO sagarroy;
 
 --
--- TOC entry 225 (class 1259 OID 17782)
+-- TOC entry 225 (class 1259 OID 16513)
 -- Name: property_photos_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
 --
 
@@ -491,7 +448,7 @@ CREATE SEQUENCE public.property_photos_id_seq
 ALTER SEQUENCE public.property_photos_id_seq OWNER TO sagarroy;
 
 --
--- TOC entry 3960 (class 0 OID 0)
+-- TOC entry 3504 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: property_photos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
 --
@@ -500,7 +457,7 @@ ALTER SEQUENCE public.property_photos_id_seq OWNED BY public.property_photos.id;
 
 
 --
--- TOC entry 228 (class 1259 OID 17800)
+-- TOC entry 228 (class 1259 OID 16531)
 -- Name: user_sessions; Type: TABLE; Schema: public; Owner: sagarroy
 --
 
@@ -519,7 +476,7 @@ CREATE TABLE public.user_sessions (
 ALTER TABLE public.user_sessions OWNER TO sagarroy;
 
 --
--- TOC entry 227 (class 1259 OID 17799)
+-- TOC entry 227 (class 1259 OID 16530)
 -- Name: user_sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
 --
 
@@ -535,7 +492,7 @@ CREATE SEQUENCE public.user_sessions_id_seq
 ALTER SEQUENCE public.user_sessions_id_seq OWNER TO sagarroy;
 
 --
--- TOC entry 3961 (class 0 OID 0)
+-- TOC entry 3505 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: user_sessions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
 --
@@ -544,7 +501,7 @@ ALTER SEQUENCE public.user_sessions_id_seq OWNED BY public.user_sessions.id;
 
 
 --
--- TOC entry 218 (class 1259 OID 17669)
+-- TOC entry 218 (class 1259 OID 16400)
 -- Name: users; Type: TABLE; Schema: public; Owner: sagarroy
 --
 
@@ -573,7 +530,7 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO sagarroy;
 
 --
--- TOC entry 217 (class 1259 OID 17668)
+-- TOC entry 217 (class 1259 OID 16399)
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: sagarroy
 --
 
@@ -589,7 +546,7 @@ CREATE SEQUENCE public.users_id_seq
 ALTER SEQUENCE public.users_id_seq OWNER TO sagarroy;
 
 --
--- TOC entry 3962 (class 0 OID 0)
+-- TOC entry 3506 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sagarroy
 --
@@ -598,7 +555,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- TOC entry 3729 (class 2604 OID 17750)
+-- TOC entry 3282 (class 2604 OID 16481)
 -- Name: messages id; Type: DEFAULT; Schema: public; Owner: sagarroy
 --
 
@@ -606,7 +563,7 @@ ALTER TABLE ONLY public.messages ALTER COLUMN id SET DEFAULT nextval('public.mes
 
 
 --
--- TOC entry 3720 (class 2604 OID 17722)
+-- TOC entry 3273 (class 2604 OID 16453)
 -- Name: offers id; Type: DEFAULT; Schema: public; Owner: sagarroy
 --
 
@@ -614,7 +571,7 @@ ALTER TABLE ONLY public.offers ALTER COLUMN id SET DEFAULT nextval('public.offer
 
 
 --
--- TOC entry 3700 (class 2604 OID 17689)
+-- TOC entry 3254 (class 2604 OID 16420)
 -- Name: properties id; Type: DEFAULT; Schema: public; Owner: sagarroy
 --
 
@@ -622,15 +579,7 @@ ALTER TABLE ONLY public.properties ALTER COLUMN id SET DEFAULT nextval('public.p
 
 
 --
--- TOC entry 3739 (class 2604 OID 17850)
--- Name: property_improvements id; Type: DEFAULT; Schema: public; Owner: sagarroy
---
-
-ALTER TABLE ONLY public.property_improvements ALTER COLUMN id SET DEFAULT nextval('public.property_improvements_id_seq'::regclass);
-
-
---
--- TOC entry 3732 (class 2604 OID 17786)
+-- TOC entry 3285 (class 2604 OID 16517)
 -- Name: property_photos id; Type: DEFAULT; Schema: public; Owner: sagarroy
 --
 
@@ -638,7 +587,7 @@ ALTER TABLE ONLY public.property_photos ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 3736 (class 2604 OID 17803)
+-- TOC entry 3289 (class 2604 OID 16534)
 -- Name: user_sessions id; Type: DEFAULT; Schema: public; Owner: sagarroy
 --
 
@@ -646,7 +595,7 @@ ALTER TABLE ONLY public.user_sessions ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
--- TOC entry 3694 (class 2604 OID 17672)
+-- TOC entry 3248 (class 2604 OID 16403)
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: sagarroy
 --
 
@@ -654,7 +603,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- TOC entry 3944 (class 0 OID 17747)
+-- TOC entry 3491 (class 0 OID 16478)
 -- Dependencies: 224
 -- Data for Name: messages; Type: TABLE DATA; Schema: public; Owner: sagarroy
 --
@@ -664,87 +613,102 @@ COPY public.messages (id, sender_id, recipient_id, property_id, offer_id, subjec
 
 
 --
--- TOC entry 3942 (class 0 OID 17719)
+-- TOC entry 3489 (class 0 OID 16450)
 -- Dependencies: 222
 -- Data for Name: offers; Type: TABLE DATA; Schema: public; Owner: sagarroy
 --
 
 COPY public.offers (id, property_id, buyer_id, offer_amount, offer_type, financing_type, down_payment_percent, inspection_contingency, financing_contingency, appraisal_contingency, sale_contingency, contingency_details, proposed_closing_date, offer_expires, buyer_message, status, counter_amount, counter_message, counter_date, accepted_date, rejected_date, rejection_reason, created_at, updated_at) FROM stdin;
+1	7	9	250000.00	standard	conventional	20.00	t	t	t	f	Buyer requests minor repairs before closing.	2025-09-30	2025-09-01 17:00:00	We are very interested in this property and can close quickly.	pending	\N	\N	\N	\N	\N	\N	2025-08-24 05:08:42.440325	2025-08-24 05:08:42.440325
+2	7	9	250000.00	standard	conventional	20.00	t	t	t	f	Buyer requests minor repairs before closing.	2025-09-30	2025-09-01 17:00:00	We are very interested in this property and can close quickly.	pending	\N	\N	\N	\N	\N	\N	2025-08-24 05:16:57.315881	2025-08-24 05:16:57.315881
+3	7	9	250000.00	standard	conventional	20.00	t	t	t	f	Buyer requests minor repairs before closing.	2025-09-30	2025-09-01 17:00:00	We are very interested in this property and can close quickly.	pending	\N	\N	\N	\N	\N	\N	2025-08-24 05:17:32.933802	2025-08-24 05:17:32.933802
 \.
 
 
 --
--- TOC entry 3940 (class 0 OID 17686)
+-- TOC entry 3487 (class 0 OID 16417)
 -- Dependencies: 220
 -- Data for Name: properties; Type: TABLE DATA; Schema: public; Owner: sagarroy
 --
 
-COPY public.properties (id, seller_id, street_address, city, state, zip_code, property_type, bedrooms, bathrooms, square_feet, lot_size, year_built, list_price, minimum_offer, property_tax_annual, hoa_fees_monthly, assessment_value, roof_year, roof_material, hvac_install_year, hvac_type, hvac_last_service, water_heater_year, water_heater_type, has_septic, septic_type, septic_last_pumped, has_solar, solar_type, solar_install_year, solar_monthly_savings, property_condition, major_repairs_needed, recent_renovations, electrical_panel_year, plumbing_updated_year, windows_replaced_year, garage_spaces, has_pool, has_fireplace, has_deck, has_basement, basement_finished, home_warranty_included, warranties_transferable, description, virtual_tour_url, allow_messages, minimum_offer_percent, status, listed_date, sold_date, sold_price, view_count, save_count, created_at, updated_at, hvac_install_date, water_heater_date, roof_replacement_date, roof_type, septic_last_serviced, septic_notes, solar_ownership, solar_monthly_payment, is_as_is, property_disclosures) FROM stdin;
-1	1	123	sagar	PA	9280	townhouse	4	3.0	1850	0.25	2020	48000.00	200.00	1200.00	\N	\N	2025	Tile	2025	Heat Pump	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	as-is	asdfsdf	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Experience the perfect blend of privacy and convenience in this spacious 4-bedroom, 3-bathroom townhouse with 1850 square feet. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	t	50	active	2025-08-21 23:05:49.988699	\N	\N	0	0	2025-08-21 23:05:49.988699	2025-08-21 23:05:49.988699	\N	\N	\N	\N	\N	\N	\N	\N	f	\N
-2	1	123	khulna	NJ	9280	condo	2	3.5	1850	0.25	2020	485000.00	485000.00	122.00	3.00	\N	2025	\N	2025	Heat Pump	\N	2025	Electric	t	\N	\N	t	\N	\N	\N	move-in-ready	\N	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	asd	\N	t	50	active	2025-08-21 23:09:37.723666	\N	\N	0	0	2025-08-21 23:09:37.723666	2025-08-21 23:09:37.723666	\N	\N	\N	\N	\N	\N	\N	\N	f	\N
-3	1	123	asd	NJ	3233	townhouse	3	2.0	1850	0.25	2222	48500.00	46000.00	12333.00	\N	\N	2025	Flat/Rubber	2025	Heat Pump	\N	2025	Heat Pump	t	\N	\N	t	\N	\N	\N	needs-work	asd	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	asd	\N	t	50	active	2025-08-21 23:15:51.528287	\N	\N	0	0	2025-08-21 23:15:51.528287	2025-08-21 23:15:51.528287	\N	\N	\N	\N	\N	\N	\N	\N	f	\N
-4	1	123	lkhi	NJ	9280	condo	2	1.0	1850	0.25	2020	48500.00	46000.00	1223.00	3.00	\N	2025	Tile	2025	Baseboard	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	needs-work	assdf	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Discover urban living at its finest in this elegant 2-bedroom, 1-bathroom condominium spanning 1850 square feet. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	t	50	active	2025-08-21 23:21:02.232956	\N	\N	0	0	2025-08-21 23:21:02.232956	2025-08-21 23:21:02.232956	\N	\N	\N	\N	\N	\N	\N	\N	f	\N
-5	1	asd	sdf	PA	234	multi-family	3	2.0	1850	0.25	202	48500.00	46000.00	12400.00	\N	\N	2025	Tile	2025	Baseboard	\N	2025	Solar	f	\N	\N	f	\N	\N	\N	as-is	\N	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	sdf	\N	t	50	active	2025-08-21 23:24:56.135268	\N	\N	0	0	2025-08-21 23:24:56.135268	2025-08-21 23:24:56.135268	\N	\N	\N	\N	\N	\N	\N	\N	f	\N
-6	1	2342	123	NJ	123	multi-family	3	3.0	1850	0.25	2020	485000.00	460000.00	21.00	2.00	\N	2025	Slate	5555	Heat Pump	\N	2025	Electric	t	\N	\N	t	\N	\N	\N	move-in-ready	asd	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 3-bedroom, 3-bathroom home featuring 1850 square feet of beautifully designed living space. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	t	50	active	2025-08-21 23:42:22.582934	\N	\N	0	0	2025-08-21 23:42:22.582934	2025-08-21 23:42:22.582934	\N	\N	\N	\N	\N	\N	\N	\N	f	\N
+COPY public.properties (id, seller_id, street_address, city, state, zip_code, property_type, bedrooms, bathrooms, square_feet, lot_size, year_built, list_price, minimum_offer, property_tax_annual, hoa_fees_monthly, assessment_value, roof_year, roof_material, hvac_install_year, hvac_type, hvac_last_service, water_heater_year, water_heater_type, has_septic, septic_type, septic_last_pumped, has_solar, solar_type, solar_install_year, solar_monthly_savings, property_condition, major_repairs_needed, recent_renovations, electrical_panel_year, plumbing_updated_year, windows_replaced_year, garage_spaces, has_pool, has_fireplace, has_deck, has_basement, basement_finished, home_warranty_included, warranties_transferable, description, virtual_tour_url, allow_messages, minimum_offer_percent, status, listed_date, sold_date, sold_price, view_count, save_count, created_at, updated_at) FROM stdin;
+1	3	1080 Winslow Ave	khulna	NJ	0484	house	1	1.0	1850	0.25	2020	254545.00	4500.00	12400.00	\N	\N	2025	Slate	2025	Central Air	\N	2025	\N	t	\N	\N	t	\N	\N	\N	move-in-ready	asda	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 1-bedroom, 1-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 03:48:44.483173	\N	\N	0	0	2025-08-24 03:48:44.483173	2025-08-24 03:48:44.483173
+2	3	1080 Winslow Ave	asd	NJ	084	house	3	2.5	1850	0.25	2020	323750.00	307563.00	12400.00	\N	\N	2025	Tile	2025	Heat Pump	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	move-in-ready	jgu g	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 3-bedroom, 2.5-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 04:02:31.540957	\N	\N	0	0	2025-08-24 04:02:31.540957	2025-08-24 04:02:31.540957
+3	3	1080 Winslow Ave	asd	NJ	084	house	3	2.5	1850	0.25	2020	323750.00	307563.00	12400.00	\N	\N	2025	Tile	2025	Heat Pump	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	move-in-ready	jgu g	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 3-bedroom, 2.5-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 04:05:18.521226	\N	\N	0	0	2025-08-24 04:05:18.521226	2025-08-24 04:05:18.521226
+4	3	1080 Winslow Ave	asd	NJ	084	house	3	2.5	1850	0.25	2020	323750.00	307563.00	12400.00	\N	\N	2025	Tile	2025	Heat Pump	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	move-in-ready	jgu g	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 3-bedroom, 2.5-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 04:05:26.404752	\N	\N	0	0	2025-08-24 04:05:26.404752	2025-08-24 04:05:26.404752
+5	3	1080 Winslow Ave	asd	NJ	084	house	3	2.5	1850	0.25	2020	323750.00	307563.00	12400.00	\N	\N	2025	Tile	2025	Heat Pump	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	move-in-ready	jgu g	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 3-bedroom, 2.5-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 04:08:09.221393	\N	\N	0	0	2025-08-24 04:08:09.221393	2025-08-24 04:08:09.221393
+6	3	1080 Winslow Ave	asd	NJ	0841	condo	1	2.0	1850	0.25	2020	247669.00	235286.00	12400.00	\N	\N	2025	Tile	2025	Window Units	\N	2025	\N	t	\N	\N	t	\N	\N	\N	move-in-ready	asd	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Discover urban living at its finest in this elegant 1-bedroom, 2-bathroom condominium spanning 1850 square feet. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. Cozy up by the fireplace during cooler evenings. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 04:25:10.445555	\N	\N	0	0	2025-08-24 04:25:10.445555	2025-08-24 04:25:10.445555
+7	9	1080 Winslow Ave	city	NJ	0484	house	1	1.5	1850	0.25	2020	281663.00	267580.00	12400.00	25.00	\N	2025	Tile	2025	Forced Air	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	as-is	asda	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 1-bedroom, 1.5-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. Cozy up by the fireplace during cooler evenings. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-24 05:00:47.108293	\N	\N	0	0	2025-08-24 05:00:47.108293	2025-08-24 05:00:47.108293
+8	11	516 North Victoria Avenue	Ventnor City	NJ	08406	house	2	1.5	18550	\N	2020	2986550.00	2837223.00	12000.00	\N	\N	2025	Asphalt Shingle	2025	Central Air	\N	2025	Tankless	f	\N	\N	f	\N	\N	\N	move-in-ready	\N	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 2-bedroom, 1.5-bathroom home featuring 18550 square feet of beautifully designed living space. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-25 15:23:06.216462	\N	\N	0	0	2025-08-25 15:23:06.216462	2025-08-25 15:23:06.216462
+9	10	123	khulna	PA	08401	condo	2	1.5	1850	0.25	2020	253173.00	240514.00	12400.00	\N	\N	2025	Tile	2025	Heat Pump	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	move-in-ready	asd	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Discover urban living at its finest in this elegant 2-bedroom, 1.5-bathroom condominium spanning 1850 square feet. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. Cozy up by the fireplace during cooler evenings. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-25 15:55:03.359605	\N	\N	0	0	2025-08-25 15:55:03.359605	2025-08-25 15:55:03.359605
+10	3	1080 Winslow Ave	khulna	NJ	9280	condo	3	2.0	1850	0.25	2020	275188.00	261429.00	12400.00	12.00	\N	2025	Tile	2025	Forced Air	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	move-in-ready	sfs	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Discover urban living at its finest in this elegant 3-bedroom, 2-bathroom condominium spanning 1850 square feet. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. Cozy up by the fireplace during cooler evenings. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-26 15:03:47.789726	\N	\N	0	0	2025-08-26 15:03:47.789726	2025-08-26 15:03:47.789726
+11	3	1080 Winslow Ave	khulna	NJ	9280	multi-family	4	2.0	1850	0.25	2020	339938.00	322941.00	12400.00	150.00	\N	2025	Slate	2025	Baseboard	\N	2025	Tankless	t	\N	\N	t	\N	\N	\N	as-is	asdaa	\N	\N	\N	\N	0	f	f	f	f	f	f	\N	Welcome to this stunning 4-bedroom, 2-bathroom home featuring 1850 square feet of beautifully designed living space. Enjoy breathtaking ocean views from multiple rooms throughout the home. The private pool and outdoor space create the perfect setting for entertaining and relaxation. Convenient parking and storage are provided with the attached garage. Cozy up by the fireplace during cooler evenings. This property offers an exceptional opportunity for comfortable living in a desirable location. Schedule your private tour today to experience all this home has to offer.	\N	f	50	active	2025-08-26 17:42:54.270611	\N	\N	0	0	2025-08-26 17:42:54.270611	2025-08-26 17:42:54.270611
 \.
 
 
 --
--- TOC entry 3950 (class 0 OID 17847)
--- Dependencies: 232
--- Data for Name: property_improvements; Type: TABLE DATA; Schema: public; Owner: sagarroy
---
-
-COPY public.property_improvements (id, property_id, improvement_type, improvement_date, improvement_cost, improvement_description, created_at) FROM stdin;
-\.
-
-
---
--- TOC entry 3946 (class 0 OID 17783)
+-- TOC entry 3493 (class 0 OID 16514)
 -- Dependencies: 226
 -- Data for Name: property_photos; Type: TABLE DATA; Schema: public; Owner: sagarroy
 --
 
 COPY public.property_photos (id, property_id, photo_url, photo_order, is_main, caption, uploaded_at) FROM stdin;
+1	10	uploads/photos-1756220596334-127141153.jpg	1	t	\N	2025-08-26 15:03:47.798445
+2	11	uploads/photos-1756230137305-792796470.jpg	1	t	\N	2025-08-26 17:42:54.284817
+3	11	uploads/photos-1756230137367-491106665.jpg	2	f	\N	2025-08-26 17:42:54.293425
+4	11	uploads/photos-1756230137363-840737511.jpeg	3	f	\N	2025-08-26 17:42:54.295652
+5	11	uploads/photos-1756230137358-457978280.jpg	4	f	\N	2025-08-26 17:42:54.298568
+6	11	uploads/photos-1756230137369-330778338.jpg	5	f	\N	2025-08-26 17:42:54.300767
+7	11	uploads/photos-1756230137364-898455055.jpg	6	f	\N	2025-08-26 17:42:54.303222
+8	11	uploads/photos-1756230137300-988737681.jpg	7	f	\N	2025-08-26 17:42:54.307896
+9	11	uploads/photos-1756230137825-772791138.jpg	8	f	\N	2025-08-26 17:42:54.310085
 \.
 
 
 --
--- TOC entry 3948 (class 0 OID 17800)
+-- TOC entry 3495 (class 0 OID 16531)
 -- Dependencies: 228
 -- Data for Name: user_sessions; Type: TABLE DATA; Schema: public; Owner: sagarroy
 --
 
 COPY public.user_sessions (id, user_id, session_token, ip_address, user_agent, created_at, expires_at, is_valid) FROM stdin;
-12	2	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInRpbWVzdGFtcCI6MTc1NTg2NzAwMjY0OSwiaWF0IjoxNzU1ODY3MDAyLCJleHAiOjE3NTg0NTkwMDJ9.sopgt7-gd7mh_5LeslGKlcytLEgzUo8ARX9mCtwr17A	\N	\N	2025-08-22 18:50:02.649662	2025-09-21 18:50:02.649	t
-14	4	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInRpbWVzdGFtcCI6MTc1NTg3MDk2ODg2MiwiaWF0IjoxNzU1ODcwOTY4LCJleHAiOjE3NTg0NjI5Njh9.rPsCI2s5-FDfyv3sLFN85ZTSsz6_7ct4-GBwiqeoG5I	\N	\N	2025-08-22 19:56:08.863046	2025-09-21 19:56:08.862	t
-16	5	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsInRpbWVzdGFtcCI6MTc1NTg3MjEwODU0MiwiaWF0IjoxNzU1ODcyMTA4LCJleHAiOjE3NTg0NjQxMDh9.RtamcOlTp_DG-x_X0hGovApRAnx0OYonikSAArEBjSQ	\N	\N	2025-08-22 20:15:08.54295	2025-09-21 20:15:08.542	t
-18	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInRpbWVzdGFtcCI6MTc1NTg3MzI4MjE1MCwiaWF0IjoxNzU1ODczMjgyLCJleHAiOjE3NTg0NjUyODJ9.2NPT9UVvQatByuC4im6iE_HKDq8fKybFCDA1Ji_GeuM	\N	\N	2025-08-22 20:34:42.153553	2025-09-21 20:34:42.153	t
-19	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInRpbWVzdGFtcCI6MTc1NTg3MzI4MjE1MSwiaWF0IjoxNzU1ODczMjgyLCJleHAiOjE3NTg0NjUyODJ9.VbdN-CurG8LVTadMPMZE5IKn0_wglYWVoRRQhHlB4xA	\N	\N	2025-08-22 20:34:42.153608	2025-09-21 20:34:42.153	t
-20	7	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInRpbWVzdGFtcCI6MTc1NTg3NTA4NTgxMiwiaWF0IjoxNzU1ODc1MDg1LCJleHAiOjE3NTg0NjcwODV9.dt28kIZkeET0jZM0K8S9yxsTa8JVGg4JUJejYheL1dM	\N	\N	2025-08-22 21:04:45.812456	2025-09-21 21:04:45.812	t
-21	3	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInRpbWVzdGFtcCI6MTc1NTg3NTk2NzM2MCwiaWF0IjoxNzU1ODc1OTY3LCJleHAiOjE3NTg0Njc5Njd9.s0HEVvTu2pE1_lgLEZrOuyMc2F-okivgvqr2GhroDrA	\N	\N	2025-08-22 21:19:27.363787	2025-09-21 21:19:27.363	t
+1	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInRpbWVzdGFtcCI6MTc1NTg4NDM4NTAwNCwiaWF0IjoxNzU1ODg0Mzg1LCJleHAiOjE3NTg0NzYzODV9.1EltdI5sX_7TeqzdHdBOo1eqVvK9MtKoeb_DENsd_MU	\N	\N	2025-08-22 17:39:45.008787	2025-09-21 17:39:45.008	t
+10	5	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsInRpbWVzdGFtcCI6MTc1NTk2OTk4MDMwMSwiaWF0IjoxNzU1OTY5OTgwLCJleHAiOjE3NTg1NjE5ODB9.D_nAk3qnRWGV8Ssl5NwUmRkK3QBSrMSudByqzLifxMg	\N	\N	2025-08-23 17:26:20.305219	2025-09-22 17:26:20.302	t
+20	2	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInRpbWVzdGFtcCI6MTc1NjAwNTU1OTE0OSwiaWF0IjoxNzU2MDA1NTU5LCJleHAiOjE3NTg1OTc1NTl9._S9jMkPBbwBGC9Mwqkd7DMKxRbAQMKv5-33RA-UOSsw	\N	\N	2025-08-24 03:19:19.153341	2025-09-23 03:19:19.152	t
+29	6	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInRpbWVzdGFtcCI6MTc1NjAxMDc3NzE3MywiaWF0IjoxNzU2MDEwNzc3LCJleHAiOjE3NTg2MDI3Nzd9.1YEmo-Bkg56eW0tPBme-mlYmx6QiQiJ8KIOT2kq8r4A	\N	\N	2025-08-24 04:46:17.173784	2025-09-23 04:46:17.174	t
+30	7	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInRpbWVzdGFtcCI6MTc1NjAxMDk0MjM1NCwiaWF0IjoxNzU2MDEwOTQyLCJleHAiOjE3NTg2MDI5NDJ9.ftVzVEX1XibksyXy44MXMrShkZ0lIm2tz74YIyc9f6A	\N	\N	2025-08-24 04:49:02.354092	2025-09-23 04:49:02.356	t
+31	8	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsInRpbWVzdGFtcCI6MTc1NjAxMTI3NDg1OCwiaWF0IjoxNzU2MDExMjc0LCJleHAiOjE3NTg2MDMyNzR9.KyzbFejcO_GX9h0-m7BkQE1hgh-O-5faEMbLetBuKDY	\N	\N	2025-08-24 04:54:34.856559	2025-09-23 04:54:34.858	t
+33	9	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksInRpbWVzdGFtcCI6MTc1NjAxMTU2Njg4MCwiaWF0IjoxNzU2MDExNTY2LCJleHAiOjE3NTg2MDM1NjZ9.SVD20ZiZ7SfQc3pvc9amxXOG130QJ8QDYMKaH61WOaM	\N	\N	2025-08-24 04:59:26.963934	2025-09-23 04:59:26.88	t
+39	4	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInRpbWVzdGFtcCI6MTc1NjAyODA0MDUxMSwiaWF0IjoxNzU2MDI4MDQwLCJleHAiOjE3NTg2MjAwNDB9.rTfVdaPNhvTdxdxvY9rZ4hTHKy5OuP6PYPNg8_Kz16E	\N	\N	2025-08-24 09:34:00.595764	2025-09-23 09:34:00.596	t
+51	10	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEwLCJ0aW1lc3RhbXAiOjE3NTYwNTM3MDE5MzYsImlhdCI6MTc1NjA1MzcwMSwiZXhwIjoxNzU4NjQ1NzAxfQ.z_2EJzKlEVpMhV8aroA2qxbp9lbl1wK78KfEwW--Xvw	\N	\N	2025-08-24 16:41:41.95009	2025-09-23 16:41:41.943	t
+53	11	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJ0aW1lc3RhbXAiOjE3NTYxMzUyNzA3NzAsImlhdCI6MTc1NjEzNTI3MCwiZXhwIjoxNzU4NzI3MjcwfQ.De2x5j9DBT1SzET4eEfIvApdL3y0kt36F3cDJB9IH3k	\N	\N	2025-08-25 15:21:10.777908	2025-09-24 15:21:10.776	t
+56	3	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInRpbWVzdGFtcCI6MTc1NjIyMDQzNzE3NCwiaWF0IjoxNzU2MjIwNDM3LCJleHAiOjE3NTg4MTI0Mzd9.kOfwW94O8RHyDdqZSxBS4JWnUlCdlEIDGHkkDqyoImI	\N	\N	2025-08-26 15:00:37.268081	2025-09-25 15:00:37.265	t
 \.
 
 
 --
--- TOC entry 3938 (class 0 OID 17669)
+-- TOC entry 3485 (class 0 OID 16400)
 -- Dependencies: 218
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: sagarroy
 --
 
 COPY public.users (id, email, password_hash, first_name, last_name, phone, user_type, is_pre_approved, pre_approval_amount, pre_approval_expires, credit_score_range, email_verified, verification_token, created_at, updated_at, last_login, is_active) FROM stdin;
-1	sagarbd2@gmail.com	$2a$12$ZkxFlPBe5TYIhmrcWdIJ4.xWJOd6VJKG5.bt4lQL12g0NWcRDAnxK	sagar	roy	01917177562	seller	f	\N	\N	\N	t	\N	2025-08-21 23:02:56.716531	2025-08-21 23:02:56.716531	\N	t
-2	sagar@gmail.com	$2a$12$Le4X/ggFGNqroNaPunP3PuzOlh/t2qhTMVuAzmIBctLkZqMeVGdAO	asd	asd	01917177562	seller	f	\N	\N	\N	t	\N	2025-08-22 18:50:02.644627	2025-08-22 18:50:02.644627	\N	t
-3	sagar2@gmail.com	$2a$12$F/LeI2p1YBTsUUF7lBHqU.Bgq311EBeo1gKXLeL7Hv6woNr4.6B9O	new 	user	01917177562	seller	f	\N	\N	\N	t	\N	2025-08-22 18:51:31.909875	2025-08-22 18:51:31.909875	\N	t
-4	onyroy1@gmail.com	$2a$12$DpIeDG/HZYGJZ/vihbi9fuqfc7JKrykRDPDIKEFRkY7VM9mjX7fLa	sagar	roy	01917177562	seller	f	\N	\N	\N	t	\N	2025-08-22 19:56:08.858342	2025-08-22 19:56:08.858342	\N	t
-5	sagarbd3@gmail.com	$2a$12$UyljzZAp5xEoKpTFjL3HcOkz.BB7lP9P5f7Cbdu7wnAQoGplKZ61i	sagar	roy	0191717756207	buyer	f	\N	\N	\N	t	\N	2025-08-22 20:15:08.539714	2025-08-22 20:15:08.539714	\N	t
-6	sagarbss2ltd@gmail.com	$2a$12$GDaeAmOF3XL17kd1yb4qpej3zAys1mofgrInfxGGm1NTPIDq69L/m	seller and 	buyer	01917177562	both	f	\N	\N	\N	t	\N	2025-08-22 20:16:05.228587	2025-08-22 20:16:05.228587	\N	t
-7	sagar3@gmail.com	$2a$12$05.Z7W0dF7P4X9fi4gMN1eWNbLFiy9vdMAiIs46EOD9rSU2zr.pXu	sagar	roy	01917177562	buyer	f	\N	\N	\N	t	\N	2025-08-22 21:04:45.808957	2025-08-22 21:04:45.808957	\N	t
+1	sagar@gmail.com	$2a$12$pZkeasewoqPLEJcJOEJqDeZ.xbQEygUU1tMcztnT7wESzgslOW5AK	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-22 17:39:45.001242	2025-08-22 17:39:45.001242	\N	t
+2	sagarbd2@gmail.com	$2a$12$7qHHJZccc8OwRdUn3ohHI.9YMp7pMOwLdvwn6NNLivzw.nEQ9bdqS	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-23 01:24:11.581119	2025-08-23 01:24:11.581119	\N	t
+3	sagarbd28@gmail.com	$2a$12$WshGBNaz7x35jySHJpzx3e4s9a1lmjCVUlB6k.6b6171JEaFTSIgi	sagar	roy	01750055946	seller	f	\N	\N	\N	t	\N	2025-08-23 16:48:59.227648	2025-08-23 16:48:59.227648	\N	t
+4	sagar2@gmail.com	$2a$12$3XcReHUfiqXZW0s/rOk/SeeYBwsX76astOJOCWJzV4BW3leVyrulu	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-23 17:24:17.792946	2025-08-23 17:24:17.792946	\N	t
+5	sagar21@gmail.com	$2a$12$mKx5UhLhkdLaPjkAvgIhS.OxFtMAfzdunlISvV/jCcJkDFPL4ZjvW	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-23 17:26:20.30037	2025-08-23 17:26:20.30037	\N	t
+6	onyroy@gmail.com	$2a$12$6y2v/hw2SbClhBzqDENo1OGvD5UA5aePlSiD/34hjm.MiZQU/5oWS	ony	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-24 04:46:17.163411	2025-08-24 04:46:17.163411	\N	t
+7	sagarbssltd@gmail.com	$2a$12$J/FxAPVMJcd0lbWLwqUb0OxMjfThAoS2TejyAeTowq0/e3912kUMC	sagar3	roy	0191717756207	both	f	\N	\N	\N	t	\N	2025-08-24 04:49:02.349155	2025-08-24 04:49:02.349155	\N	t
+8	sagarbd30@gmail.com	$2a$12$TXr9eErSytdHBUJIcjbpDuTRuR69JzAQuGRP8Eox7LJB14etb9ndW	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-24 04:54:34.849915	2025-08-24 04:54:34.849915	\N	t
+9	sagarbd32@gmail.com	$2a$12$Izhij/pfwIAWY0qPJvIcwO9RJXvDfYmBr9f1I9RG8EL8qwEgAvJUu	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-24 04:59:26.877594	2025-08-24 04:59:26.877594	\N	t
+10	sagarshourov@gmail.com	$2a$12$xVdBGaPzXJFsllI046gpNOtCT/u2puNZ98ZYn1Z5FfBuwIQTzL2ii	sagar	roy	01917177562	both	f	\N	\N	\N	t	\N	2025-08-24 16:19:20.948444	2025-08-24 16:19:20.948444	\N	t
+11	dicerbomatt@gmail.com	$2a$12$094Pmlpr79UvUE00diLlS.9RxWD2QyrggUw.Y.XdnVq.0zapwllVa	Matthew	DiCerbo	6095138654	both	f	\N	\N	\N	t	\N	2025-08-24 16:45:51.453783	2025-08-24 16:45:51.453783	\N	t
 \.
 
 
 --
--- TOC entry 3963 (class 0 OID 0)
+-- TOC entry 3507 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
 --
@@ -753,61 +717,52 @@ SELECT pg_catalog.setval('public.messages_id_seq', 1, false);
 
 
 --
--- TOC entry 3964 (class 0 OID 0)
+-- TOC entry 3508 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: offers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
 --
 
-SELECT pg_catalog.setval('public.offers_id_seq', 1, false);
+SELECT pg_catalog.setval('public.offers_id_seq', 3, true);
 
 
 --
--- TOC entry 3965 (class 0 OID 0)
+-- TOC entry 3509 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: properties_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
 --
 
-SELECT pg_catalog.setval('public.properties_id_seq', 6, true);
+SELECT pg_catalog.setval('public.properties_id_seq', 11, true);
 
 
 --
--- TOC entry 3966 (class 0 OID 0)
--- Dependencies: 231
--- Name: property_improvements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
---
-
-SELECT pg_catalog.setval('public.property_improvements_id_seq', 1, false);
-
-
---
--- TOC entry 3967 (class 0 OID 0)
+-- TOC entry 3510 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: property_photos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
 --
 
-SELECT pg_catalog.setval('public.property_photos_id_seq', 1, false);
+SELECT pg_catalog.setval('public.property_photos_id_seq', 9, true);
 
 
 --
--- TOC entry 3968 (class 0 OID 0)
+-- TOC entry 3511 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: user_sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
 --
 
-SELECT pg_catalog.setval('public.user_sessions_id_seq', 21, true);
+SELECT pg_catalog.setval('public.user_sessions_id_seq', 56, true);
 
 
 --
--- TOC entry 3969 (class 0 OID 0)
+-- TOC entry 3512 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: sagarroy
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 7, true);
+SELECT pg_catalog.setval('public.users_id_seq', 11, true);
 
 
 --
--- TOC entry 3765 (class 2606 OID 17756)
+-- TOC entry 3316 (class 2606 OID 16487)
 -- Name: messages messages_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -816,7 +771,7 @@ ALTER TABLE ONLY public.messages
 
 
 --
--- TOC entry 3761 (class 2606 OID 17735)
+-- TOC entry 3312 (class 2606 OID 16466)
 -- Name: offers offers_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -825,7 +780,7 @@ ALTER TABLE ONLY public.offers
 
 
 --
--- TOC entry 3756 (class 2606 OID 17712)
+-- TOC entry 3307 (class 2606 OID 16443)
 -- Name: properties properties_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -834,16 +789,7 @@ ALTER TABLE ONLY public.properties
 
 
 --
--- TOC entry 3775 (class 2606 OID 17855)
--- Name: property_improvements property_improvements_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
---
-
-ALTER TABLE ONLY public.property_improvements
-    ADD CONSTRAINT property_improvements_pkey PRIMARY KEY (id);
-
-
---
--- TOC entry 3768 (class 2606 OID 17793)
+-- TOC entry 3319 (class 2606 OID 16524)
 -- Name: property_photos property_photos_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -852,7 +798,7 @@ ALTER TABLE ONLY public.property_photos
 
 
 --
--- TOC entry 3770 (class 2606 OID 17809)
+-- TOC entry 3321 (class 2606 OID 16540)
 -- Name: user_sessions user_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -861,7 +807,7 @@ ALTER TABLE ONLY public.user_sessions
 
 
 --
--- TOC entry 3772 (class 2606 OID 17811)
+-- TOC entry 3323 (class 2606 OID 16542)
 -- Name: user_sessions user_sessions_session_token_key; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -870,7 +816,7 @@ ALTER TABLE ONLY public.user_sessions
 
 
 --
--- TOC entry 3745 (class 2606 OID 17684)
+-- TOC entry 3296 (class 2606 OID 16415)
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -879,7 +825,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3747 (class 2606 OID 17682)
+-- TOC entry 3298 (class 2606 OID 16413)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -888,7 +834,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3762 (class 1259 OID 17828)
+-- TOC entry 3313 (class 1259 OID 16559)
 -- Name: idx_messages_property; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -896,7 +842,7 @@ CREATE INDEX idx_messages_property ON public.messages USING btree (property_id);
 
 
 --
--- TOC entry 3763 (class 1259 OID 17827)
+-- TOC entry 3314 (class 1259 OID 16558)
 -- Name: idx_messages_recipient; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -904,7 +850,7 @@ CREATE INDEX idx_messages_recipient ON public.messages USING btree (recipient_id
 
 
 --
--- TOC entry 3757 (class 1259 OID 17825)
+-- TOC entry 3308 (class 1259 OID 16556)
 -- Name: idx_offers_buyer; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -912,7 +858,7 @@ CREATE INDEX idx_offers_buyer ON public.offers USING btree (buyer_id);
 
 
 --
--- TOC entry 3758 (class 1259 OID 17824)
+-- TOC entry 3309 (class 1259 OID 16555)
 -- Name: idx_offers_property; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -920,7 +866,7 @@ CREATE INDEX idx_offers_property ON public.offers USING btree (property_id);
 
 
 --
--- TOC entry 3759 (class 1259 OID 17826)
+-- TOC entry 3310 (class 1259 OID 16557)
 -- Name: idx_offers_status; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -928,7 +874,7 @@ CREATE INDEX idx_offers_status ON public.offers USING btree (status);
 
 
 --
--- TOC entry 3766 (class 1259 OID 17829)
+-- TOC entry 3317 (class 1259 OID 16560)
 -- Name: idx_photos_property; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -936,7 +882,7 @@ CREATE INDEX idx_photos_property ON public.property_photos USING btree (property
 
 
 --
--- TOC entry 3748 (class 1259 OID 17822)
+-- TOC entry 3299 (class 1259 OID 16553)
 -- Name: idx_properties_bedrooms; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -944,7 +890,7 @@ CREATE INDEX idx_properties_bedrooms ON public.properties USING btree (bedrooms)
 
 
 --
--- TOC entry 3749 (class 1259 OID 17819)
+-- TOC entry 3300 (class 1259 OID 16550)
 -- Name: idx_properties_city_state; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -952,7 +898,7 @@ CREATE INDEX idx_properties_city_state ON public.properties USING btree (city, s
 
 
 --
--- TOC entry 3750 (class 1259 OID 17823)
+-- TOC entry 3301 (class 1259 OID 16554)
 -- Name: idx_properties_condition; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -960,7 +906,7 @@ CREATE INDEX idx_properties_condition ON public.properties USING btree (property
 
 
 --
--- TOC entry 3751 (class 1259 OID 17820)
+-- TOC entry 3302 (class 1259 OID 16551)
 -- Name: idx_properties_price; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -968,7 +914,7 @@ CREATE INDEX idx_properties_price ON public.properties USING btree (list_price);
 
 
 --
--- TOC entry 3752 (class 1259 OID 17817)
+-- TOC entry 3303 (class 1259 OID 16548)
 -- Name: idx_properties_seller; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -976,7 +922,7 @@ CREATE INDEX idx_properties_seller ON public.properties USING btree (seller_id);
 
 
 --
--- TOC entry 3753 (class 1259 OID 17818)
+-- TOC entry 3304 (class 1259 OID 16549)
 -- Name: idx_properties_status; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -984,7 +930,7 @@ CREATE INDEX idx_properties_status ON public.properties USING btree (status);
 
 
 --
--- TOC entry 3754 (class 1259 OID 17821)
+-- TOC entry 3305 (class 1259 OID 16552)
 -- Name: idx_properties_type; Type: INDEX; Schema: public; Owner: sagarroy
 --
 
@@ -992,15 +938,7 @@ CREATE INDEX idx_properties_type ON public.properties USING btree (property_type
 
 
 --
--- TOC entry 3773 (class 1259 OID 17861)
--- Name: idx_property_improvements_property_id; Type: INDEX; Schema: public; Owner: sagarroy
---
-
-CREATE INDEX idx_property_improvements_property_id ON public.property_improvements USING btree (property_id);
-
-
---
--- TOC entry 3935 (class 2618 OID 17833)
+-- TOC entry 3482 (class 2618 OID 16564)
 -- Name: active_listings _RETURN; Type: RULE; Schema: public; Owner: sagarroy
 --
 
@@ -1076,7 +1014,7 @@ CREATE OR REPLACE VIEW public.active_listings AS
 
 
 --
--- TOC entry 3789 (class 2620 OID 17843)
+-- TOC entry 3336 (class 2620 OID 16574)
 -- Name: offers update_offers_updated_at; Type: TRIGGER; Schema: public; Owner: sagarroy
 --
 
@@ -1084,7 +1022,7 @@ CREATE TRIGGER update_offers_updated_at BEFORE UPDATE ON public.offers FOR EACH 
 
 
 --
--- TOC entry 3788 (class 2620 OID 17842)
+-- TOC entry 3335 (class 2620 OID 16573)
 -- Name: properties update_properties_updated_at; Type: TRIGGER; Schema: public; Owner: sagarroy
 --
 
@@ -1092,7 +1030,7 @@ CREATE TRIGGER update_properties_updated_at BEFORE UPDATE ON public.properties F
 
 
 --
--- TOC entry 3787 (class 2620 OID 17841)
+-- TOC entry 3334 (class 2620 OID 16572)
 -- Name: users update_users_updated_at; Type: TRIGGER; Schema: public; Owner: sagarroy
 --
 
@@ -1100,7 +1038,7 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON public.users FOR EACH RO
 
 
 --
--- TOC entry 3779 (class 2606 OID 17772)
+-- TOC entry 3327 (class 2606 OID 16503)
 -- Name: messages messages_offer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1109,7 +1047,7 @@ ALTER TABLE ONLY public.messages
 
 
 --
--- TOC entry 3780 (class 2606 OID 17777)
+-- TOC entry 3328 (class 2606 OID 16508)
 -- Name: messages messages_parent_message_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1118,7 +1056,7 @@ ALTER TABLE ONLY public.messages
 
 
 --
--- TOC entry 3781 (class 2606 OID 17767)
+-- TOC entry 3329 (class 2606 OID 16498)
 -- Name: messages messages_property_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1127,7 +1065,7 @@ ALTER TABLE ONLY public.messages
 
 
 --
--- TOC entry 3782 (class 2606 OID 17762)
+-- TOC entry 3330 (class 2606 OID 16493)
 -- Name: messages messages_recipient_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1136,7 +1074,7 @@ ALTER TABLE ONLY public.messages
 
 
 --
--- TOC entry 3783 (class 2606 OID 17757)
+-- TOC entry 3331 (class 2606 OID 16488)
 -- Name: messages messages_sender_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1145,7 +1083,7 @@ ALTER TABLE ONLY public.messages
 
 
 --
--- TOC entry 3777 (class 2606 OID 17741)
+-- TOC entry 3325 (class 2606 OID 16472)
 -- Name: offers offers_buyer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1154,7 +1092,7 @@ ALTER TABLE ONLY public.offers
 
 
 --
--- TOC entry 3778 (class 2606 OID 17736)
+-- TOC entry 3326 (class 2606 OID 16467)
 -- Name: offers offers_property_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1163,7 +1101,7 @@ ALTER TABLE ONLY public.offers
 
 
 --
--- TOC entry 3776 (class 2606 OID 17713)
+-- TOC entry 3324 (class 2606 OID 16444)
 -- Name: properties properties_seller_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1172,16 +1110,7 @@ ALTER TABLE ONLY public.properties
 
 
 --
--- TOC entry 3786 (class 2606 OID 17856)
--- Name: property_improvements property_improvements_property_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
---
-
-ALTER TABLE ONLY public.property_improvements
-    ADD CONSTRAINT property_improvements_property_id_fkey FOREIGN KEY (property_id) REFERENCES public.properties(id) ON DELETE CASCADE;
-
-
---
--- TOC entry 3784 (class 2606 OID 17794)
+-- TOC entry 3332 (class 2606 OID 16525)
 -- Name: property_photos property_photos_property_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1190,7 +1119,7 @@ ALTER TABLE ONLY public.property_photos
 
 
 --
--- TOC entry 3785 (class 2606 OID 17812)
+-- TOC entry 3333 (class 2606 OID 16543)
 -- Name: user_sessions user_sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sagarroy
 --
 
@@ -1198,7 +1127,39 @@ ALTER TABLE ONLY public.user_sessions
     ADD CONSTRAINT user_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-08-22 21:53:59 +06
+--
+-- TOC entry 2079 (class 826 OID 16391)
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON SEQUENCES TO sagarroy;
+
+
+--
+-- TOC entry 2081 (class 826 OID 16393)
+-- Name: DEFAULT PRIVILEGES FOR TYPES; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON TYPES TO sagarroy;
+
+
+--
+-- TOC entry 2080 (class 826 OID 16392)
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON FUNCTIONS TO sagarroy;
+
+
+--
+-- TOC entry 2078 (class 826 OID 16390)
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON TABLES TO sagarroy;
+
+
+-- Completed on 2025-08-28 21:24:47 +06
 
 --
 -- PostgreSQL database dump complete
