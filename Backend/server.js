@@ -25,9 +25,6 @@ app.use(cors({
 
 
 
-
-
-
 // 3. Body parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -47,7 +44,7 @@ app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 // Load API Routes with error handling
 console.log('\n🔧 Loading API routes...');
 
-let authRoutes, propertyRoutes, offerRoutes;
+let authRoutes, propertyRoutes, offerRoutes, documentRoutes;
 
 try {
     authRoutes = require('./routes/auth');
@@ -71,6 +68,15 @@ try {
     console.error('❌ Error loading offer routes:', error.message);
 }
 
+
+try {
+    documentRoutes = require('./routes/documents');
+    console.log('✅ Documnets routes loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading offer routes:', error.message);
+}
+
+
 // Mount API routes BEFORE static file handling
 console.log('\n🔌 Mounting API routes...');
 if (authRoutes) {
@@ -89,12 +95,18 @@ if (offerRoutes) {
     app.use('/api/offers', offerRoutes);
     console.log('✅ Offer routes mounted at /api/offers');
 }
+if (documentRoutes) {
+    app.use('/api/documents', documentRoutes);
+    console.log('✅ Offer routes mounted at /api/offers');
+}
+
+
 
 // Test route to verify server is working
 // Test route to verify server is working
 app.get('/api/test', (req, res) => {
-    res.json({ 
-        success: true, 
+    res.json({
+        success: true,
         message: 'Server is running!',
         routes: {
             auth: authRoutes ? 'loaded' : 'failed',
@@ -107,7 +119,7 @@ app.get('/api/test', (req, res) => {
 // One-time database update route - ADD IT HERE!
 app.get('/api/update-database', async (req, res) => {
     const { Pool } = require('pg');
-    
+
     const pool = new Pool({
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
@@ -115,10 +127,10 @@ app.get('/api/update-database', async (req, res) => {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
     });
-    
+
     try {
         console.log('Starting database update...');
-        
+
         // Add new columns to properties table
         const alterTableQueries = [
             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_install_date DATE`,
@@ -136,13 +148,13 @@ app.get('/api/update-database', async (req, res) => {
             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_as_is BOOLEAN DEFAULT FALSE`,
             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS property_disclosures TEXT`
         ];
-        
+
         // Execute each ALTER TABLE query
         for (const query of alterTableQueries) {
             await pool.query(query);
             console.log(`✅ Executed: ${query.substring(0, 50)}...`);
         }
-        
+
         // Create property_improvements table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS property_improvements (
@@ -156,14 +168,14 @@ app.get('/api/update-database', async (req, res) => {
             )
         `);
         console.log('✅ Created property_improvements table');
-        
+
         // Create index
         await pool.query(`
             CREATE INDEX IF NOT EXISTS idx_property_improvements_property_id 
             ON property_improvements(property_id)
         `);
         console.log('✅ Created index on property_improvements');
-        
+
         // Get list of columns to verify
         const result = await pool.query(`
             SELECT column_name, data_type 
@@ -175,14 +187,14 @@ app.get('/api/update-database', async (req, res) => {
             )
             ORDER BY column_name
         `);
-        
+
         res.json({
             success: true,
             message: 'Database updated successfully!',
             newColumns: result.rows,
             tablesUpdated: ['properties', 'property_improvements']
         });
-        
+
     } catch (error) {
         console.error('Database update error:', error);
         res.status(500).json({
@@ -256,8 +268,8 @@ app.get('/dashboard', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Server Error:', err);
-    res.status(500).json({ 
-        success: false, 
+    res.status(500).json({
+        success: false,
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
@@ -266,8 +278,8 @@ app.use((err, req, res, next) => {
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
     console.log(`404 - API route not found: ${req.originalUrl}`);
-    res.status(404).json({ 
-        success: false, 
+    res.status(404).json({
+        success: false,
         error: 'API route not found',
         path: req.originalUrl
     });
@@ -279,31 +291,31 @@ app.get('*', (req, res) => {
 });
 
 function showRoutes(app) {
-  console.log("Registered routes:");
-  app._router.stack.forEach((middleware) => {
-    if (middleware.route) {
-      // Route directly on app
-      const methods = Object.keys(middleware.route.methods)
-        .map((m) => m.toUpperCase())
-        .join(", ");
-      console.log(`${methods} ${middleware.route.path}`);
-    } else if (middleware.name === "router") {
-      // Routes inside a router
-      middleware.handle.stack.forEach((handler) => {
-        if (handler.route) {
-          const methods = Object.keys(handler.route.methods)
-            .map((m) => m.toUpperCase())
-            .join(", ");
-          console.log(`${methods} ${handler.route.path}`);
+    console.log("Registered routes:");
+    app._router.stack.forEach((middleware) => {
+        if (middleware.route) {
+            // Route directly on app
+            const methods = Object.keys(middleware.route.methods)
+                .map((m) => m.toUpperCase())
+                .join(", ");
+            console.log(`${methods} ${middleware.route.path}`);
+        } else if (middleware.name === "router") {
+            // Routes inside a router
+            middleware.handle.stack.forEach((handler) => {
+                if (handler.route) {
+                    const methods = Object.keys(handler.route.methods)
+                        .map((m) => m.toUpperCase())
+                        .join(", ");
+                    console.log(`${methods} ${handler.route.path}`);
+                }
+            });
         }
-      });
-    }
-  });
+    });
 }
 
 // Start server
 app.listen(PORT, () => {
-     showRoutes(app); 
+    showRoutes(app);
     console.log('\n🚀 Server started successfully!');
     console.log(`🏠 You're Home server running on http://localhost:${PORT}`);
     console.log('📁 Serving frontend files from parent directory');
