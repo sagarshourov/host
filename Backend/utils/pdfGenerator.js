@@ -14,13 +14,13 @@ class PDFGenerator {
       }
     });
   }
-  
+
   generateLOI(formData, outputPath) {
     return new Promise((resolve, reject) => {
       const stream = fs.createWriteStream(outputPath);
       this.doc.pipe(stream);
-      
-      // Add all content sections (only using methods that exist)
+
+      // Add all content sections
       this.addHeader(formData);
       this.addSalutation(formData);
       this.addPropertyDescription(formData);
@@ -35,40 +35,61 @@ class PDFGenerator {
       this.addConfidentialitySection(formData);
       this.addClosing(formData);
       this.addSignatureSection(formData);
-      
+
       // Finalize
       this.doc.end();
-      
+
       stream.on('finish', () => resolve(outputPath));
       stream.on('error', reject);
     });
   }
-  
+
   addHeader(formData) {
-    // Buyer address on top right
+    // Set initial Y position
+    let yPosition = 50;
+    
+    // Current date at top right
+    const formattedDate = this.formatDate(formData.letterDate) || new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    // Buyer address on top left
+    const buyerName = formData.buyerName || 'Buyer Name';
+    const buyerAddress = formData.buyerAddress || 'Address Line';
+    const buyerCityStateZip = `${formData.buyerCity || 'City'}, ${formData.buyerState || 'State'} ${formData.buyerZip || 'ZIP'}`;
+    
     this.doc
       .fontSize(11)
       .font('Helvetica')
-      .text(`${formData.buyerName || 'Buyer Name'}`, 400, 50, { align: 'right' })
-      .text(`${formData.buyerAddress || 'Buyer Address'}`, 400, 65, { align: 'right' })
-      .text(`${formData.buyerCity || 'City'}, ${formData.buyerState || 'State'} ${formData.buyerZip || 'ZIP'}`, 400, 80, { align: 'right' });
+      .text(buyerName, 72, yPosition)
+      .text(buyerAddress, 72, yPosition + 15)
+      .text(buyerCityStateZip, 72, yPosition + 30);
     
-    // Date
-    this.doc
-      .text(`${this.formatDate(formData.letterDate)}`, 72, 120);
+    // Date on top right
+    const dateWidth = this.doc.widthOfString(formattedDate);
+    this.doc.text(formattedDate, 72 + (this.doc.page.width - 144) - dateWidth, yPosition);
     
-    // Seller address
+    // Seller address below buyer address
+    const sellerY = yPosition + 60;
+    const sellerName = formData.sellerName || 'Seller Name';
+    const sellerAddress = formData.sellerAddress || 'Seller Address';
+    const sellerCityStateZip = `${formData.sellerCity || 'City'}, ${formData.sellerState || 'State'} ${formData.sellerZip || 'ZIP'}`;
+    
     this.doc
-      .text(`${formData.sellerName || 'Seller Name'}`, 72, 140)
-      .text(`${formData.sellerAddress || 'Seller Address'}`, 72, 155)
-      .text(`${formData.sellerCity || 'City'}, ${formData.sellerState || 'State'} ${formData.sellerZip || 'ZIP'}`, 72, 170);
+      .text(sellerName, 72, sellerY)
+      .text(sellerAddress, 72, sellerY + 15)
+      .text(sellerCityStateZip, 72, sellerY + 30);
     
     // Salutation
     this.doc
-      .moveDown(2)
-      .text(`Dear ${formData.sellerName ? formData.sellerName.split(' ')[0] : 'Seller'}:`, 72, 220);
+      .text(`Dear ${formData.sellerName ? formData.sellerName.split(' ')[0] : 'Seller'}:`, 72, sellerY + 60);
+    
+    // Update the current Y position for subsequent content
+    this.doc.y = sellerY + 80;
   }
-  
+
   addSalutation(formData) {
     this.doc
       .moveDown()
@@ -78,7 +99,7 @@ class PDFGenerator {
         indent: 0
       });
   }
-  
+
   addPropertyDescription(formData) {
     this.doc
       .moveDown()
@@ -93,20 +114,20 @@ class PDFGenerator {
       .moveDown(0.5)
       .text('The Real Estate is subject to public highways, covenants, restrictions and zoning, if any.')
       .moveDown(0.5);
-    
+
     if (formData.includedItems || formData.excludedItems) {
       this.doc.text('Included are all permanent fixtures and all property that integrally belongs to or is part of the Real Estate, whether attached or detached, such as light fixtures, shades, rods, blinds, awnings, windows, storm doors, screens, plumbing fixtures, water heater, water softener, air conditioning equipment, built-in items, outside television antenna, fencing, gates and landscaping,');
-      
+
       if (formData.includedItems) {
         this.doc.text(`specifically including ${formData.includedItems},`);
       }
-      
+
       if (formData.excludedItems) {
         this.doc.text(`but specifically excluding ${formData.excludedItems}.`);
       }
     }
   }
-  
+
   addPriceSection(formData) {
     this.doc
       .moveDown()
@@ -119,7 +140,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addPossessionSection(formData) {
     this.doc
       .moveDown()
@@ -132,7 +153,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addInspectionSection(formData) {
     this.doc
       .moveDown()
@@ -145,7 +166,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addConditionsSection(formData) {
     this.doc
       .moveDown()
@@ -158,35 +179,33 @@ class PDFGenerator {
         align: 'justify'
       })
       .moveDown(0.5);
-    
+
     if (formData.requireFinancing === 'yes') {
       this.doc
-        .text(`a. Receipt by Buyer of financing, in the amount of ${this.formatCurrency(formData.financingAmount)}, and at an interest rate not to exceed ${formData.interestRate}%, financed over a period of ${formData.financingYears} years or more, to finance Buyer's purchase of the Real Estate.`, {
+        .text(`a. Receipt by Buyer of financing, in the amount of ${this.formatCurrency(formData.financingAmount)}, and at an interest rate not to exceed ${formData.interestRate || '4.5'}%, financed over a period of ${formData.financingYears || '30'} years or more, to finance Buyer's purchase of the Real Estate.`, {
+          indent: 20
+        });
+    } else {
+      this.doc
+        .text('a. Buyer having sufficient funds available for the purchase.', {
           indent: 20
         });
     }
-    
+
     if (formData.saleContingency === 'yes') {
       this.doc
-        .text('b. Sale of Buyer\'s current property.', {
+        .text('b. The sale of Buyer\'s current property located at [BUYER\'S CURRENT PROPERTY ADDRESS].', {
           indent: 20
         });
     }
-    
-    if (formData.additionalConditions) {
-      this.doc
-        .text(`c. ${formData.additionalConditions}`, {
-          indent: 20
-        });
-    }
-    
+
     this.doc
       .moveDown(0.5)
       .text(`Buyer would agree to satisfy or release such condition(s) by ${this.formatDate(formData.conditionsDate)}.`, {
         align: 'justify'
       });
   }
-  
+
   addWarrantiesSection(formData) {
     this.doc
       .moveDown()
@@ -203,7 +222,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addStandardProvisions(formData) {
     this.doc
       .moveDown()
@@ -216,7 +235,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addStandStillSection(formData) {
     this.doc
       .moveDown()
@@ -224,12 +243,19 @@ class PDFGenerator {
       .font('Helvetica-Bold')
       .text('8. STAND STILL.')
       .fontSize(11)
-      .font('Helvetica')
-      .text(`Seller shall not initiate or carry on negotiations for the sale of the Real Estate with any party other than Buyer unless either (1) Buyer and Seller fail to enter into a binding Purchase Agreement by ${this.formatDate(formData.standStillEndDate)}, or (2) Buyer and Seller agree in writing to abandon this Letter of Intent.`, {
+      .font('Helvetica');
+    
+    if (formData.standStill === 'yes') {
+      this.doc.text(`Seller shall not initiate or carry on negotiations for the sale of the Real Estate with any party other than Buyer unless either (1) Buyer and Seller fail to enter into a binding Purchase Agreement by ${this.formatDate(formData.standStillEndDate)}, or (2) Buyer and Seller agree in writing to abandon this Letter of Intent.`, {
         align: 'justify'
       });
+    } else {
+      this.doc.text('This Letter of Intent does not restrict Seller from negotiating with other parties.', {
+        align: 'justify'
+      });
+    }
   }
-  
+
   addNonBindingSection(formData) {
     this.doc
       .moveDown()
@@ -242,7 +268,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addConfidentialitySection(formData) {
     this.doc
       .moveDown()
@@ -255,7 +281,7 @@ class PDFGenerator {
         align: 'justify'
       });
   }
-  
+
   addClosing(formData) {
     this.doc
       .moveDown(2)
@@ -264,55 +290,75 @@ class PDFGenerator {
       .text('Sincerely,')
       .moveDown(2);
   }
-  
+
   addSignatureSection(formData) {
+    const currentY = this.doc.y;
+    
+    // Buyer section
     this.doc
       .fontSize(12)
       .font('Helvetica-Bold')
-      .text('BUYER:')
-      .moveDown(2)
+      .text('BUYER:', 72, currentY)
+      .moveDown(1.5);
+    
+    const buyerY = this.doc.y;
+    
+    this.doc
       .fontSize(11)
       .font('Helvetica')
-      .text('By: _________________________________', 72, this.doc.y)
-      .text('Date: ___________________', 300, this.doc.y)
-      .moveDown(0.5)
-      .text(formData.buyerName || 'Buyer Name', 100, this.doc.y)
-      .moveDown(3)
+      .text('By: _________________________________', 72, buyerY)
+      .text('Date: ___________________', 300, buyerY)
+      .text(formData.buyerName || 'Buyer Name', 100, buyerY + 15);
+    
+    // Seller section
+    this.doc
       .fontSize(12)
       .font('Helvetica-Bold')
-      .text('SELLER:')
-      .moveDown(2)
+      .text('SELLER:', 72, buyerY + 50);
+    
+    const sellerY = this.doc.y + 15;
+    
+    this.doc
       .fontSize(11)
       .font('Helvetica')
-      .text('By: _________________________________', 72, this.doc.y)
-      .text('Date: ___________________', 300, this.doc.y)
-      .moveDown(0.5)
-      .text(formData.sellerName || 'Seller Name', 100, this.doc.y)
-      .moveDown(2)
-      .text('The above Letter reflects our mutual understanding and sets forth the basis for proceeding to negotiate a Purchase Agreement as outlined above.');
+      .text('By: _________________________________', 72, sellerY)
+      .text('Date: ___________________', 300, sellerY)
+      .text(formData.sellerName || 'Seller Name', 100, sellerY + 15);
+    
+    // Footer note
+    this.doc
+      .text('The above Letter reflects our mutual understanding and sets forth the basis for proceeding to negotiate a Purchase Agreement as outlined above.', 72, sellerY + 50, {
+        width: 450,
+        align: 'left'
+      });
   }
-  
+
   formatDate(dateStr) {
     if (!dateStr) return '[DATE]';
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
       return '[INVALID DATE]';
     }
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
     });
   }
-  
+
   formatCurrency(amount) {
     if (!amount) return '$0.00';
-    const numericAmount = typeof amount === 'string' 
-      ? parseFloat(amount.replace(/[^0-9.-]+/g, '')) 
+    const numericAmount = typeof amount === 'string'
+      ? parseFloat(amount.replace(/[^0-9.-]+/g, ''))
       : amount;
+      
+    if (isNaN(numericAmount)) return '$0.00';
+      
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(numericAmount);
   }
 }
