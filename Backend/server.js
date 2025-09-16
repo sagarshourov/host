@@ -13,15 +13,15 @@ const PORT = process.env.PORT || 3000;
 app.use(cookieParser());
 
 // 2. CORS configuration
-// app.use(cors({
-//     origin: 'http://localhost:5173',
-//     credentials: true
-// }));
-
 app.use(cors({
-    origin: 'https://property.sagarroy.com',
+    origin: 'http://localhost:5173',
     credentials: true
 }));
+
+// app.use(cors({
+//     origin: 'https://property.sagarroy.com',
+//     credentials: true
+// }));
 
 
 
@@ -44,7 +44,7 @@ app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 // Load API Routes with error handling
 console.log('\n🔧 Loading API routes...');
 
-let authRoutes, propertyRoutes, offerRoutes, documentRoutes;
+let authRoutes, propertyRoutes, offerRoutes, documentRoutes , preApprovalRoutes , transectionsRoutes;
 
 try {
     authRoutes = require('./routes/auth');
@@ -76,6 +76,24 @@ try {
     console.error('❌ Error loading offer routes:', error.message);
 }
 
+try {
+    preApprovalRoutes = require('./routes/preApproval');
+    console.log('✅ preApprovalRoutes routes loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading preapproval routes:', error.message);
+}
+
+try {
+    transectionsRoutes = require('./routes/transactions');
+    console.log('✅ TransectionsRoutes routes loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading transectionsRoutes routes:', error.message);
+}
+
+
+
+
+
 
 // Mount API routes BEFORE static file handling
 console.log('\n🔌 Mounting API routes...');
@@ -97,8 +115,24 @@ if (offerRoutes) {
 }
 if (documentRoutes) {
     app.use('/api/documents', documentRoutes);
-    console.log('✅ Offer routes mounted at /api/offers');
+    console.log('✅ Documents routes mounted at /api/documents');
 }
+
+if (preApprovalRoutes) {
+    app.use('/api/pre-approval', preApprovalRoutes);
+    console.log('✅ Pre Approvals routes mounted at /api/preApproval');
+}else{
+     console.log('❌ PreApproval routes not mounted');
+}
+
+if (transectionsRoutes) {
+    app.use('/api/transactions', transectionsRoutes);
+    console.log('✅ TransectionsRoutes routes mounted at /api/preApproval');
+}else{
+     console.log('❌ transectionsRoutes routes not mounted');
+}
+
+
 
 
 
@@ -117,149 +151,149 @@ app.get('/api/test', (req, res) => {
 });
 
 // One-time database update route - ADD IT HERE!
-app.get('/api/update-database', async (req, res) => {
-    const { Pool } = require('pg');
+// app.get('/api/update-database', async (req, res) => {
+//     const { Pool } = require('pg');
 
-    const pool = new Pool({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        database: process.env.DB_NAME,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-    });
+//     const pool = new Pool({
+//         host: process.env.DB_HOST,
+//         port: process.env.DB_PORT,
+//         database: process.env.DB_NAME,
+//         user: process.env.DB_USER,
+//         password: process.env.DB_PASSWORD,
+//     });
 
-    try {
-        console.log('Starting database update...');
+//     try {
+//         console.log('Starting database update...');
 
-        // Add new columns to properties table
-        const alterTableQueries = [
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_install_date DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_type VARCHAR(100)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_heater_date DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_heater_type VARCHAR(100)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS roof_replacement_date DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS roof_type VARCHAR(100)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_septic BOOLEAN DEFAULT FALSE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS septic_last_serviced DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS septic_notes TEXT`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_solar BOOLEAN DEFAULT FALSE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS solar_ownership VARCHAR(20)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS solar_monthly_payment DECIMAL(10,2)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_as_is BOOLEAN DEFAULT FALSE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS property_disclosures TEXT`
-        ];
+//         // Add new columns to properties table
+//         const alterTableQueries = [
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_install_date DATE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_type VARCHAR(100)`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_heater_date DATE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_heater_type VARCHAR(100)`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS roof_replacement_date DATE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS roof_type VARCHAR(100)`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_septic BOOLEAN DEFAULT FALSE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS septic_last_serviced DATE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS septic_notes TEXT`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_solar BOOLEAN DEFAULT FALSE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS solar_ownership VARCHAR(20)`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS solar_monthly_payment DECIMAL(10,2)`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_as_is BOOLEAN DEFAULT FALSE`,
+//             `ALTER TABLE properties ADD COLUMN IF NOT EXISTS property_disclosures TEXT`
+//         ];
 
-        // Execute each ALTER TABLE query
-        for (const query of alterTableQueries) {
-            await pool.query(query);
-            console.log(`✅ Executed: ${query.substring(0, 50)}...`);
-        }
+//         // Execute each ALTER TABLE query
+//         for (const query of alterTableQueries) {
+//             await pool.query(query);
+//             console.log(`✅ Executed: ${query.substring(0, 50)}...`);
+//         }
 
-        // Create property_improvements table
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS property_improvements (
-                id SERIAL PRIMARY KEY,
-                property_id INTEGER REFERENCES properties(id) ON DELETE CASCADE,
-                improvement_type VARCHAR(100),
-                improvement_date DATE,
-                improvement_cost DECIMAL(10,2),
-                improvement_description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log('✅ Created property_improvements table');
+//         // Create property_improvements table
+//         await pool.query(`
+//             CREATE TABLE IF NOT EXISTS property_improvements (
+//                 id SERIAL PRIMARY KEY,
+//                 property_id INTEGER REFERENCES properties(id) ON DELETE CASCADE,
+//                 improvement_type VARCHAR(100),
+//                 improvement_date DATE,
+//                 improvement_cost DECIMAL(10,2),
+//                 improvement_description TEXT,
+//                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//             )
+//         `);
+//         console.log('✅ Created property_improvements table');
 
-        // Create index
-        await pool.query(`
-            CREATE INDEX IF NOT EXISTS idx_property_improvements_property_id 
-            ON property_improvements(property_id)
-        `);
-        console.log('✅ Created index on property_improvements');
+//         // Create index
+//         await pool.query(`
+//             CREATE INDEX IF NOT EXISTS idx_property_improvements_property_id 
+//             ON property_improvements(property_id)
+//         `);
+//         console.log('✅ Created index on property_improvements');
 
-        // Get list of columns to verify
-        const result = await pool.query(`
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'properties' 
-            AND column_name IN (
-                'hvac_type', 'roof_type', 'has_solar', 
-                'water_heater_type', 'is_as_is'
-            )
-            ORDER BY column_name
-        `);
+//         // Get list of columns to verify
+//         const result = await pool.query(`
+//             SELECT column_name, data_type 
+//             FROM information_schema.columns 
+//             WHERE table_name = 'properties' 
+//             AND column_name IN (
+//                 'hvac_type', 'roof_type', 'has_solar', 
+//                 'water_heater_type', 'is_as_is'
+//             )
+//             ORDER BY column_name
+//         `);
 
-        res.json({
-            success: true,
-            message: 'Database updated successfully!',
-            newColumns: result.rows,
-            tablesUpdated: ['properties', 'property_improvements']
-        });
+//         res.json({
+//             success: true,
+//             message: 'Database updated successfully!',
+//             newColumns: result.rows,
+//             tablesUpdated: ['properties', 'property_improvements']
+//         });
 
-    } catch (error) {
-        console.error('Database update error:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            detail: error.detail
-        });
-    } finally {
-        await pool.end();
-    }
-});
+//     } catch (error) {
+//         console.error('Database update error:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: error.message,
+//             detail: error.detail
+//         });
+//     } finally {
+//         await pool.end();
+//     }
+// });
 
-// THEN the HTML Page Routes continue...
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// // THEN the HTML Page Routes continue...
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
-// HTML Page Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// // HTML Page Routes
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
-app.get('/index.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// app.get('/index.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
-app.get('/listings.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/listings.html'));
-});
+// app.get('/listings.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/listings.html'));
+// });
 
-app.get('/property-detail.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
-});
+// app.get('/property-detail.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
+// });
 
-app.get('/list-property.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/list-property.html'));
-});
+// app.get('/list-property.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/list-property.html'));
+// });
 
-app.get('/sell.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/sell.html'));
-});
+// app.get('/sell.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/sell.html'));
+// });
 
-app.get('/seller-dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
-});
+// app.get('/seller-dashboard.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
+// });
 
-app.get('/listings', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/listings.html'));
-});
+// app.get('/listings', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/listings.html'));
+// });
 
-app.get('/property/:id', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
-});
+// app.get('/property/:id', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
+// });
 
-app.get('/list-property', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/list-property.html'));
-});
+// app.get('/list-property', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/list-property.html'));
+// });
 
-app.get('/sell', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/sell.html'));
-});
+// app.get('/sell', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/sell.html'));
+// });
 
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
-});
+// app.get('/dashboard', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
+// });
 
 // app.get('/seller-dashboard', (req, res) => {
 //     res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
@@ -333,4 +367,11 @@ process.on('SIGINT', () => {
 });
 
 module.exports = app;
+
+
+
+
+
+
+
 
