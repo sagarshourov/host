@@ -72,12 +72,12 @@ router.post('/', authenticateToken, async (req, res) => {
         // Create the offer
         const result = await pool.query(`
             INSERT INTO offers (
-                property_id, buyer_id, offer_amount, financing_type, buyer_message, inspection_contingency, financing_contingency, appraisal_contingency
+                property_id, buyer_id, offer_amount, financing_type, buyer_message, inspection_contingency, financing_contingency, appraisal_contingency ,seller_id
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7, $8 , $9
             ) RETURNING *
         `, [
-            propertyId, req.user.userId, offerAmount, financingType, buyerMessage, inspectionContingency !== false, financingContingency !== false, appraisalContingency !== false
+            propertyId, req.user.userId,  offerAmount, financingType, buyerMessage, inspectionContingency !== false, financingContingency !== false, appraisalContingency !== false , property.seller_id
         ]);
 
         const offer = result.rows[0];
@@ -102,11 +102,10 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-// GET /api/offers/property/:propertyId - Get all offers for a property (for sellers)
-router.get('/property/:propertyId', authenticateToken, async (req, res) => {
-    try {
-        const { propertyId } = req.params;
 
+const allOffers = async (propertyId, userId) => {
+
+    try {
         // Verify user owns this property
         const propertyResult = await pool.query(
             'SELECT seller_id FROM properties WHERE id = $1',
@@ -114,11 +113,11 @@ router.get('/property/:propertyId', authenticateToken, async (req, res) => {
         );
 
         if (propertyResult.rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'Property not found' });
+            return { success: false, error: 'Property not found' };
         }
 
-        if (propertyResult.rows[0].seller_id !== req.user.userId) {
-            return res.status(403).json({ success: false, error: 'Not authorized to view offers for this property' });
+        if (propertyResult.rows[0].seller_id !== userId) {
+            return { success: false, error: 'Not authorized to view offers for this property' };
         }
 
         const result = await pool.query(`
@@ -164,27 +163,53 @@ router.get('/property/:propertyId', authenticateToken, async (req, res) => {
             };
         });
 
-        res.json({
-            success: true,
-            offers: offersWithStrength
-        });
+        //console.log("all", offersWithStrength);
+
+        return offersWithStrength;
+
+
 
     } catch (error) {
         console.error('Get property offers error:', error);
+
+        return 500;
+        //res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+
+
+}
+
+
+
+
+// GET /api/offers/property/:propertyId - Get all offers for a property (for sellers)
+router.get('/property/:propertyId', authenticateToken, async (req, res) => {
+    try {
+        const { propertyId } = req.params;
+        const userId = req.user.userId; // ✅ fixed destructuring
+
+        const allOfferrs = await allOffers(propertyId, userId); // ✅ fixed param order + await
+
+        res.json({
+            success: true,
+            offers: allOfferrs
+        });
+    } catch (error) {
+        console.error('Error fetching offers:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
-
 // GET /api/offers/buyer/my-offers - Get buyer's offers
 router.get('/buyer/my-offers', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT o.*, p.street_address, p.city, p.state, p.list_price,
-                   (SELECT file_url FROM property_photos WHERE property_id = p.id AND is_main_photo = TRUE LIMIT 1) as main_photo
+            SELECT o.*,t.id as trans_id, p.street_address, p.city, p.state, p.list_price,
+                   (SELECT photo_url FROM property_photos WHERE property_id = p.id AND is_main = TRUE LIMIT 1) as main_photo
             FROM offers o
             JOIN properties p ON o.property_id = p.id
+            JOIN transactions t ON t.offer_id = o.id
             WHERE o.buyer_id = $1
-            ORDER BY o.submitted_at DESC
+            ORDER BY o.id DESC
         `, [req.user.userId]);
 
         res.json({
@@ -204,10 +229,10 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
         const { offerId } = req.params;
         const { action, counterAmount, sellerResponse } = req.body;
 
-        if (!['accept', 'reject', 'counter'].includes(action)) {
+        if (!['accepted', 'rejected', 'countered'].includes(action)) {
             return res.status(400).json({
                 success: false,
-                error: 'Invalid action. Must be accept, reject, or counter'
+                error: 'Invalid action. Must be accepted, rejected, or countered'
             });
         }
 
@@ -233,26 +258,29 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
         let updateQuery;
         let updateParams;
 
-        if (action === 'accept') {
+        if (action === 'accepted') {
             updateQuery = `
                 UPDATE offers 
-                SET status = 'accepted', seller_response = $1, responded_at = NOW(), accepted_at = NOW()
+                SET status = 'accepted', seller_response = $1, updated_at = NOW(), accepted_date = NOW()
                 WHERE id = $2
                 RETURNING *
             `;
             updateParams = [sellerResponse, offerId];
 
-            // Mark all other pending offers as rejected
-            await pool.query(`
-                UPDATE offers 
-                SET status = 'rejected', seller_response = 'Property sold to another buyer'
-                WHERE property_id = $1 AND id != $2 AND status = 'pending'
-            `, [offer.property_id, offerId]);
 
-        } else if (action === 'reject') {
+
+
+
+
+
+
+
+
+
+        } else if (action === 'rejected') {
             updateQuery = `
                 UPDATE offers 
-                SET status = 'rejected', seller_response = $1, responded_at = NOW()
+                SET status = 'rejected', seller_response = $1, rejected_date = NOW()
                 WHERE id = $2
                 RETURNING *
             `;
@@ -268,7 +296,7 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
 
             updateQuery = `
                 UPDATE offers 
-                SET status = 'countered', counter_amount = $1, seller_response = $2, responded_at = NOW()
+                SET status = 'countered', counter_amount = $1, seller_response = $2, counter_date = NOW()
                 WHERE id = $3
                 RETURNING *
             `;
@@ -276,7 +304,122 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
         }
 
         const result = await pool.query(updateQuery, updateParams);
-        const updatedOffer = result.rows[0];
+
+        if (action === 'accepted') {
+            // Mark all other pending offers as rejected
+            await pool.query(`
+                UPDATE offers 
+                SET status = 'rejected', seller_response = 'Property sold to another buyer'
+                WHERE property_id = $1 AND id != $2
+            `, [offer.property_id, offerId]);
+
+
+
+
+
+            if (result.rowCount > 0) {
+                let offer = result.rows[0];
+
+                console.error('Respond to offer error:', offer.property_id);
+
+
+                const created_at = new Date();
+
+                const inserttransactionQuery = `
+  INSERT INTO transactions (
+    offer_id, property_id, buyer_id, seller_id, buyer_agent_id, seller_agent_id,
+    purchase_price, earnest_money_amount, closing_date, closing_location,
+    earnest_money_status, selected_title_company_id, phone_verified, phone_verified_at,
+    earnest_money_verified_at, earnest_money_step, transaction_status, inspection_period_days,
+    inspection_start_date, inspection_end_date, inspection_completed, appraisal_contingency,
+    appraisal_value, appraisal_completed, appraisal_date, financing_contingency, loan_amount,
+    loan_type, down_payment_percentage, interest_rate, loan_officer_id, title_insurance_amount,
+    closing_costs, homeowners_insurance_required, hoa_fees, offer_acceptance_date,
+    created_at, updated_at, closed_at
+  ) VALUES (
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
+    $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
+    $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
+    $31,$32,$33,$34,$35,$36,$37,$38,$39
+  );
+`;
+
+                const InsertTransParams = [
+                    offer.id,
+                    offer.property_id,
+                    offer.buyer_id,
+                    offer.seller_id,
+                    0,
+                    0,
+                    offer.offer_amount,
+                    offer.earnest_money_amount,
+                    offer.proposed_closing_date,
+                    "",
+                    "pending",
+                    null,
+                    false,
+                    null,
+                    null,
+                    1,
+                    "",
+                    10,
+                    null,
+                    null,
+                    false,
+                    false,
+                    offer.offer_amount,
+                    false,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    0,
+                    null,
+                    created_at,
+                    created_at,
+                    null
+                ];
+
+
+
+
+
+
+                const tran_result = await pool.query(
+                    `SELECT EXISTS (
+                            SELECT 1 FROM transactions
+                            WHERE offer_id = $1 AND buyer_id = $2
+                        ) AS exists;`,
+                    [offerId, offer.buyer_id]
+                );
+
+                if (tran_result.rows[0].exists) {
+                    console.log("Transaction already exists");
+                } else {
+                    const insert_result = await pool.query(inserttransactionQuery, InsertTransParams);
+
+
+                    //      await pool.query(`
+                    //     UPDATE offers 
+                    //     SET transactions_id = $1
+                    //     WHERE  id = $2
+                    // `, [insert_result.rows[0].id, offerId]);
+
+                    // console.error("transaction", insert_result);
+
+                }
+
+            }
+
+
+        }
+
 
         // Create message for seller response
         if (sellerResponse) {
@@ -287,18 +430,20 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
         }
 
         let message;
-        if (action === 'accept') {
+        if (action === 'accepted') {
             message = 'Offer accepted! The buyer will be notified.';
-        } else if (action === 'reject') {
+        } else if (action === 'rejected') {
             message = 'Offer rejected. The buyer will be notified.';
         } else {
             message = `Counter offer submitted for $${counterAmount.toLocaleString()}. The buyer will be notified.`;
         }
 
+        const allOfferrs = await allOffers(offer.property_id, req.user.userId);
+
         res.json({
             success: true,
             message,
-            offer: updatedOffer
+            offers: allOfferrs
         });
 
     } catch (error) {

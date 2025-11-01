@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const Document = require('../models/Document');
-const EmailService = require('../services/emailService');
+//const EmailService = require('../services/emailService');
 const DocuSignService = require('../services/docusignService');
 
 // DocuSign webhook endpoint

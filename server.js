@@ -13,15 +13,15 @@ const PORT = process.env.PORT || 3000;
 app.use(cookieParser());
 
 // 2. CORS configuration
-// app.use(cors({
-//     origin: 'http://localhost:5173',
-//     credentials: true
-// }));
-
 app.use(cors({
-    origin: 'https://property.sagarroy.com',
+    origin: 'http://localhost:5173',
     credentials: true
 }));
+
+// app.use(cors({
+//     origin: 'https://property.sagarroy.com',
+//     credentials: true
+// }));
 
 
 
@@ -44,7 +44,7 @@ app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 // Load API Routes with error handling
 console.log('\n🔧 Loading API routes...');
 
-let authRoutes, propertyRoutes, offerRoutes, documentRoutes;
+let authRoutes, propertyRoutes, offerRoutes, esignRoutes, preapprovalRoutes, transactionsRoutes, creditCheckRoutes;
 
 try {
     authRoutes = require('./routes/auth');
@@ -70,11 +70,38 @@ try {
 
 
 try {
-    documentRoutes = require('./routes/documents');
-    console.log('✅ Documnets routes loaded successfully');
+    esignRoutes = require('./routes/esign');
+    console.log('✅ Esign routes loaded successfully');
 } catch (error) {
     console.error('❌ Error loading offer routes:', error.message);
 }
+
+try {
+    preapprovalRoutes = require('./routes/preApproval');
+    console.log('✅ preapproval routes loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading offer routes:', error.message);
+}
+
+
+try {
+    transactionsRoutes = require('./routes/transactions');
+    console.log('✅ transactionsRoutes routes loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading offer routes:', error.message);
+}
+
+
+try {
+    creditCheckRoutes = require('./routes/creditCheck');
+    console.log('✅ creditCheck routes loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading offer routes:', error.message);
+}
+
+
+
+
 
 
 // Mount API routes BEFORE static file handling
@@ -95,10 +122,48 @@ if (offerRoutes) {
     app.use('/api/offers', offerRoutes);
     console.log('✅ Offer routes mounted at /api/offers');
 }
-if (documentRoutes) {
-    app.use('/api/documents', documentRoutes);
-    console.log('✅ Offer routes mounted at /api/offers');
+if (esignRoutes) {
+    app.use('/api/esign', esignRoutes);
+    console.log('✅ document routes mounted at /api/esign');
 }
+
+
+if (preapprovalRoutes) {
+    app.use('/api/preapproval', preapprovalRoutes);
+    console.log('✅ preapproval routes mounted at /api/preapproval');
+} else {
+    console.log('❌ preapproval routes not mounted');
+}
+
+if (transactionsRoutes) {
+    app.use('/api/transactions', transactionsRoutes);
+    console.log('✅ transactions routes mounted at /api/transactions');
+} else {
+    console.log('❌ transactions routes not mounted');
+}
+
+
+if (creditCheckRoutes) {
+    app.use('/api/applications', creditCheckRoutes);
+    console.log('✅ applications routes mounted at /api/applications');
+} else {
+    console.log('❌ applications routes not mounted');
+}
+
+app.use('/api/buyer-rating', require('./routes/buyerRating'));
+
+app.use('/api/contracts', require('./routes/contracts'));
+
+app.use('/api/contingencies', require('./routes/contingencyRoutes'));
+
+app.use('/api/saved-properties', require('./routes/savedProperties'));
+
+app.use('/api/tours', require('./routes/tourRoutes'));
+
+app.use('/api/earnest-money', require('./routes/earnestMoneyRoutes'));
+
+
+
 
 
 
@@ -208,58 +273,58 @@ app.get('/api/update-database', async (req, res) => {
 });
 
 // THEN the HTML Page Routes continue...
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
-// HTML Page Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// // HTML Page Routes
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
-app.get('/index.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// app.get('/index.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
-app.get('/listings.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/listings.html'));
-});
+// app.get('/listings.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/listings.html'));
+// });
 
-app.get('/property-detail.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
-});
+// app.get('/property-detail.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
+// });
 
-app.get('/list-property.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/list-property.html'));
-});
+// app.get('/list-property.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/list-property.html'));
+// });
 
-app.get('/sell.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/sell.html'));
-});
+// app.get('/sell.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/sell.html'));
+// });
 
-app.get('/seller-dashboard.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
-});
+// app.get('/seller-dashboard.html', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
+// });
 
-app.get('/listings', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/listings.html'));
-});
+// app.get('/listings', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/listings.html'));
+// });
 
-app.get('/property/:id', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
-});
+// app.get('/property/:id', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/property-detail.html'));
+// });
 
-app.get('/list-property', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/list-property.html'));
-});
+// app.get('/list-property', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/list-property.html'));
+// });
 
-app.get('/sell', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/sell.html'));
-});
+// app.get('/sell', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/sell.html'));
+// });
 
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
-});
+// app.get('/dashboard', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
+// });
 
 // app.get('/seller-dashboard', (req, res) => {
 //     res.sendFile(path.join(__dirname, '../pages/seller-dashboard.html'));
@@ -286,9 +351,9 @@ app.use('/api/*', (req, res) => {
 });
 
 // For all other routes, serve index.html (for single-page app behavior)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/index.html'));
-});
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../pages/index.html'));
+// });
 
 function showRoutes(app) {
     console.log("Registered routes:");
@@ -315,7 +380,7 @@ function showRoutes(app) {
 
 // Start server
 app.listen(PORT, () => {
-    showRoutes(app);
+    //showRoutes(app);
     console.log('\n🚀 Server started successfully!');
     console.log(`🏠 You're Home server running on http://localhost:${PORT}`);
     console.log('📁 Serving frontend files from parent directory');

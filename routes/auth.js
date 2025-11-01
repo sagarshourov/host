@@ -31,14 +31,14 @@ console.log('📊 Database config:', {
     password: process.env.DB_PASSWORD ? '[SET]' : '[EMPTY]'
 });
 
-// Test database connection
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('❌ Database connection failed:', err.message);
-    } else {
-        console.log('✅ Database connected successfully at:', res.rows[0].now);
-    }
-});
+// // Test database connection
+// pool.query('SELECT NOW()', (err, res) => {
+//     if (err) {
+//         console.error('❌ Database connection failed:', err.message);
+//     } else {
+//         console.log('✅ Database connected successfully at:', res.rows[0].now);
+//     }
+// });
 
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_this';
@@ -47,6 +47,52 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_t
 const generateToken = (userId) => {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '30d' });
 };
+
+const getUser = async (token) => {
+
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                error: 'Not authenticated'
+            });
+        }
+
+        // Verify JWT token
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Check if session exists in database
+        const sessionResult = await pool.query(
+            'SELECT user_id FROM user_sessions WHERE session_token = $1 AND expires_at > NOW()',
+            [token]
+        );
+
+        if (sessionResult.rows.length === 0) {
+            return res.status(401).json({
+                success: false,
+                error: 'Session expired'
+            });
+        }
+
+        // Get user info - CHANGED is_verified to email_verified
+        const userResult = await pool.query(
+            'SELECT id, email, first_name, last_name, phone, user_type, email_verified FROM users WHERE id = $1',
+            [decoded.userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        const user = userResult.rows[0];
+
+        return user;
+};
+
+
+
 
 // POST /api/auth/register - User Registration
 router.post('/register', async (req, res) => {
@@ -382,33 +428,33 @@ router.put('/profile', authenticateToken, async (req, res) => {
 });
 
 // PUT /api/auth/pre-approval - Update pre-approval information
-router.put('/pre-approval', authenticateToken, async (req, res) => {
-    try {
-        const { preApprovalAmount, preApprovalLender, preApprovalExpiry } = req.body;
+// router.put('/pre-approval', authenticateToken, async (req, res) => {
+//     try {
+//         const { preApprovalAmount, preApprovalLender, preApprovalExpiry } = req.body;
 
-        // Note: Your database has pre_approval_expires not pre_approval_expiry
-        // Also missing lender_name column - using pre_approval_amount only
-        const result = await pool.query(
-            `UPDATE users 
-             SET pre_approval_amount = $1, pre_approval_expires = $2, is_pre_approved = TRUE, updated_at = NOW()
-             WHERE id = $3
-             RETURNING pre_approval_amount, pre_approval_expires, is_pre_approved`,
-            [preApprovalAmount, preApprovalExpiry, req.user.userId]
-        );
+//         // Note: Your database has pre_approval_expires not pre_approval_expiry
+//         // Also missing lender_name column - using pre_approval_amount only
+//         const result = await pool.query(
+//             `UPDATE users 
+//              SET pre_approval_amount = $1, pre_approval_expires = $2, is_pre_approved = TRUE, updated_at = NOW()
+//              WHERE id = $3
+//              RETURNING pre_approval_amount, pre_approval_expires, is_pre_approved`,
+//             [preApprovalAmount, preApprovalExpiry, req.user.userId]
+//         );
 
-        res.json({
-            success: true,
-            message: 'Pre-approval information updated',
-            preApproval: result.rows[0]
-        });
+//         res.json({
+//             success: true,
+//             message: 'Pre-approval information updated',
+//             preApproval: result.rows[0]
+//         });
 
-    } catch (error) {
-        console.error('Pre-approval update error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
-    }
-});
+//     } catch (error) {
+//         console.error('Pre-approval update error:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: 'Internal server error'
+//         });
+//     }
+// });
 
 module.exports = router;

@@ -549,7 +549,7 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
                    COUNT(o.id) as offer_count,
                    (SELECT photo_url FROM property_photos WHERE property_id = p.id AND is_main = TRUE LIMIT 1) as main_photo
             FROM properties p
-            LEFT JOIN offers o ON p.id = o.property_id AND o.status = 'pending'
+            LEFT JOIN offers o ON p.id = o.property_id 
             WHERE p.seller_id = $1
             GROUP BY p.id
             ORDER BY p.listed_date DESC
@@ -566,6 +566,47 @@ router.get('/seller/my-listings', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error });
     }
 });
+router.get('/buyer/saved-properties', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(`
+      SELECT 
+        p.*,
+        ps.id as saved_id,           
+        ps.notes,
+        ps.priority,
+        ps.created_at as saved_at,
+        COUNT(o.id) as offer_count,
+        (SELECT photo_url 
+         FROM property_photos 
+         WHERE property_id = p.id AND is_main = TRUE 
+         LIMIT 1) as main_photo
+      FROM property_saved ps
+      INNER JOIN properties p ON ps.property_id = p.id
+      LEFT JOIN offers o ON p.id = o.property_id AND o.status = 'pending'
+      WHERE ps.buyer_id = $1
+      GROUP BY p.id, ps.id, ps.notes, ps.priority, ps.created_at
+      ORDER BY ps.created_at DESC
+    `, [req.user.userId]);
+
+        res.json({
+            success: true,
+            properties: result.rows,
+            total: result.rows.length
+        });
+    } catch (error) {
+        console.error('Get saved properties error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch saved properties',
+            message: error.message
+        });
+    }
+});
+
+router.post('/buyer/saved-schedule', authenticateToken, async (req, res) => {
+   
+});
+
 
 // DELETE /api/properties/:id - Delete property
 router.delete('/:id', authenticateToken, async (req, res) => {
