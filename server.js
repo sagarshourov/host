@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 // 2. CORS configuration
 app.use(cors({
-    origin: process.env.FRONTEND_URL ,
+    origin: 'http://localhost:5173',
     credentials: true
 }));
 
@@ -163,6 +163,36 @@ app.use('/api/tours', require('./routes/tourRoutes'));
 app.use('/api/earnest-money', require('./routes/earnestMoneyRoutes'));
 
 
+app.use('/api/inspection', require('./routes/inspectionsRoutes'));
+
+app.use('/api/mortgage', require('./routes/mortgageRoutes'));
+
+app.use('/api/insurance', require('./routes/insuranceRoutes'));
+
+app.use('/api/title', require('./routes/titleSearchRoutes'));
+
+app.use('/api/moving-preparations', require('./routes/movingPreparations'));
+
+
+app.use('/api/underwriting', require('./routes/underwriting'));
+
+
+app.use('/api/appraisals', require('./routes/appraisals'));
+
+app.use('/api/closing', require('./routes/closingDisclosure'));
+
+app.use('/api/walkthrough', require('./routes/walkThrough'));
+
+app.use('/api/closing-appointments', require('./routes/closingAppointments'));
+
+app.use('/api/documentsign', require('./routes/signingRoutes'));
+
+
+
+app.use('/api/funding', require('./routes/fundingRoutes'));
+
+
+
 
 
 
@@ -182,95 +212,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // One-time database update route - ADD IT HERE!
-app.get('/api/update-database', async (req, res) => {
-    const { Pool } = require('pg');
 
-    const pool = new Pool({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        database: process.env.DB_NAME,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-    });
-
-    try {
-        console.log('Starting database update...');
-
-        // Add new columns to properties table
-        const alterTableQueries = [
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_install_date DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS hvac_type VARCHAR(100)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_heater_date DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_heater_type VARCHAR(100)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS roof_replacement_date DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS roof_type VARCHAR(100)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_septic BOOLEAN DEFAULT FALSE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS septic_last_serviced DATE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS septic_notes TEXT`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS has_solar BOOLEAN DEFAULT FALSE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS solar_ownership VARCHAR(20)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS solar_monthly_payment DECIMAL(10,2)`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_as_is BOOLEAN DEFAULT FALSE`,
-            `ALTER TABLE properties ADD COLUMN IF NOT EXISTS property_disclosures TEXT`
-        ];
-
-        // Execute each ALTER TABLE query
-        for (const query of alterTableQueries) {
-            await pool.query(query);
-            console.log(`✅ Executed: ${query.substring(0, 50)}...`);
-        }
-
-        // Create property_improvements table
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS property_improvements (
-                id SERIAL PRIMARY KEY,
-                property_id INTEGER REFERENCES properties(id) ON DELETE CASCADE,
-                improvement_type VARCHAR(100),
-                improvement_date DATE,
-                improvement_cost DECIMAL(10,2),
-                improvement_description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log('✅ Created property_improvements table');
-
-        // Create index
-        await pool.query(`
-            CREATE INDEX IF NOT EXISTS idx_property_improvements_property_id 
-            ON property_improvements(property_id)
-        `);
-        console.log('✅ Created index on property_improvements');
-
-        // Get list of columns to verify
-        const result = await pool.query(`
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'properties' 
-            AND column_name IN (
-                'hvac_type', 'roof_type', 'has_solar', 
-                'water_heater_type', 'is_as_is'
-            )
-            ORDER BY column_name
-        `);
-
-        res.json({
-            success: true,
-            message: 'Database updated successfully!',
-            newColumns: result.rows,
-            tablesUpdated: ['properties', 'property_improvements']
-        });
-
-    } catch (error) {
-        console.error('Database update error:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            detail: error.detail
-        });
-    } finally {
-        await pool.end();
-    }
-});
 
 // THEN the HTML Page Routes continue...
 // app.get('/', (req, res) => {

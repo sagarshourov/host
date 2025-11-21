@@ -121,7 +121,7 @@ const tourController = {
         await pool.query(
           `UPDATE task_value 
                              SET status = 'completed' 
-                             WHERE task_id = $1 AND offer_id = $2`,
+                             WHERE task_id = $1 AND transactions_id = $2`,
           [7, property_offer.rows[0].id]
         ); // done esign
 
@@ -133,7 +133,7 @@ const tourController = {
       //  await pool.query(
       //             `UPDATE task_value 
       //                        SET status = 'completed' 
-      //                        WHERE task_id = $1 AND offer_id = $2`,
+      //                        WHERE task_id = $1 AND transactions_id = $2`,
       //             [11, offerId]
       //         ); // done esign
 

@@ -60,7 +60,7 @@ const createEsignDocument = async (req, res) => {
                 included_items, excluded_items, deed_type, purchase_price, deposit_amount,
                 possession_date, require_financing, financing_amount, interest_rate, financing_years,
                 sale_contingency, release_conditions, conditions_date, exclusive_negotiation,
-                stand_still, stand_still_end_date, additional_provisions, user_id , offer_id
+                stand_still, stand_still_end_date, additional_provisions, user_id , transactions_id
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
                 $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34,
@@ -114,14 +114,14 @@ const createEsignDocument = async (req, res) => {
 
         const result = await pool.query(query, values);
 
-        const offer_id = parseInt(offerId);
+        const transactions_id = parseInt(offerId);
 
 
         await pool.query(
             `UPDATE task_value 
                        SET status = 'completed' 
-                       WHERE task_id = $1 AND offer_id = $2`,
-            [11, offer_id]
+                       WHERE task_id = $1 AND transactions_id = $2`,
+            [11, transactions_id]
         ); // done esign
 
 
@@ -164,7 +164,7 @@ const getAllEsignDocuments = async (req, res) => {
 const getEsignDocumentById = async (req, res) => {
     try {
         const { id } = req.params;
-        const query = 'SELECT * FROM esign_documents WHERE offer_id = $1';
+        const query = 'SELECT * FROM esign_documents WHERE transactions_id = $1';
         const result = await pool.query(query, [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Document not found' });
@@ -243,7 +243,7 @@ const updateEsignDocument = async (req, res) => {
                 interest_rate = $31, financing_years = $32, sale_contingency = $33,
                 release_conditions = $34, conditions_date = $35, exclusive_negotiation = $36,
                 stand_still = $37, stand_still_end_date = $38, additional_provisions = $39,
-                status = $40, offer_id = $41
+                status = $40, transactions_id = $41
             WHERE id = $42
             RETURNING *
         `;
@@ -301,14 +301,14 @@ const updateEsignDocument = async (req, res) => {
             return res.status(404).json({ message: 'Document not found' });
         }
 
-       const offer_id = parseInt(offerId);
+       const transactions_id = parseInt(offerId);
 
 
         await pool.query(
             `UPDATE task_value 
                        SET status = 'completed' 
-                       WHERE task_id = $1 AND offer_id = $2`,
-            [11, offer_id]
+                       WHERE task_id = $1 AND transactions_id = $2`,
+            [11, transactions_id]
         ); // done esign
 
 

@@ -85,7 +85,7 @@ router.post('/', authenticateToken, async (req, res) => {
         // Create message if provided and allowed
         if (buyerMessage && property.allow_messages) {
             await pool.query(`
-                INSERT INTO messages (sender_id, recipient_id, property_id, offer_id, message_text)
+                INSERT INTO messages (sender_id, recipient_id, property_id, transactions_id, message_text)
                 VALUES ($1, $2, $3, $4, $5)
             `, [req.user.userId, property.seller_id, propertyId, offer.id, buyerMessage]);
         }
@@ -424,7 +424,7 @@ router.post('/:offerId/respond', authenticateToken, async (req, res) => {
         // Create message for seller response
         if (sellerResponse) {
             await pool.query(`
-                INSERT INTO messages (sender_id, recipient_id, property_id, offer_id, message_text)
+                INSERT INTO messages (sender_id, recipient_id, property_id, transactions_id, message_text)
                 VALUES ($1, $2, $3, $4, $5)
             `, [req.user.userId, offer.buyer_id, offer.property_id, offerId, sellerResponse]);
         }

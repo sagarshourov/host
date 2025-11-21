@@ -25,7 +25,7 @@ const storeCreditCheck = async (creditData) => {
 const updateTask = async (task_id , offerId) => {
 
   await pool.query(
-    `UPDATE task_value  SET status = 'completed' WHERE task_id = $1 AND offer_id = $2`,
+    `UPDATE task_value  SET status = 'completed' WHERE task_id = $1 AND transactions_id = $2`,
     [task_id, offerId]
   ); // done esign
 };

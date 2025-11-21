@@ -333,8 +333,6 @@ router.post('/verify-with-title-company/:transactionId', async (req, res) => {
         JSON.stringify({ amount: earnestMoneyAmount, verified })]
     );
 
-
-
     const status = await pool.query(
       `UPDATE task_value
    SET status = 'completed'

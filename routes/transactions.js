@@ -17,17 +17,12 @@ router.get('/:transactionId/complete', async (req, res) => {
 
     try {
         const { transactionId } = req.params; // offerId > transactionId
-
         // Validate transactionId
         if (!transactionId || isNaN(transactionId)) {
-
             return res.status(400).json({ message: 'Invalid transaction ID' });
         }
-
         const offer = await pool.query(`select * from transactions where id = $1 `, [transactionId]);
-
         if (offer.rowCount === 0) {
-
             return res.status(400).json({ message: 'This offer not accepted!' });
         }
 
