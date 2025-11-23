@@ -7,7 +7,7 @@ const { pool } = require('../config/database');
 router.get('/status/:transactionId', async (req, res) => {
   try {
     const { transactionId } = req.params;
-    
+
     const result = await pool.query(
       `SELECT * FROM underwriting_status 
        WHERE transaction_id = $1`,
@@ -17,6 +17,15 @@ router.get('/status/:transactionId', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Underwriting status not found' });
     }
+
+    const status = await pool.query(
+      `UPDATE task_value
+           SET status = 'completed'
+           WHERE task_id IN ($1, $2, $3 , $4)
+             AND transactions_id = $5`,
+      [42, 43, 44, 45, transactionId]
+    );
+
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -81,6 +90,15 @@ router.get('/clear-to-close/:transactionId', async (req, res) => {
 
     let clearToClose = false;
     let loanApproved = false;
+
+    const stu = await pool.query(
+      `UPDATE task_value
+           SET status = 'completed'
+           WHERE task_id IN ($1, $2, $3 , $4)
+             AND transactions_id = $5`,
+      [42, 43, 44, 45, transactionId]
+    );
+
 
     if (!hasPendingConditions && !hasPendingDocuments) {
       if (status.status === 'conditions_requested') {

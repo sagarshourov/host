@@ -8,7 +8,7 @@ const pool = require('../config/database');
 router.get('/transaction/:transactionId', authenticateToken, async (req, res) => {
     try {
         const { transactionId } = req.params;
-        
+
         const result = await pool.query(`
             SELECT a.*, 
                    p.street_address, p.city, p.state, p.zip_code,
@@ -18,11 +18,26 @@ router.get('/transaction/:transactionId', authenticateToken, async (req, res) =>
             LEFT JOIN users u ON a.appraiser_id = u.id
             WHERE a.transaction_id = $1
         `, [transactionId]);
-        
+
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Appraisal not found' });
         }
-        
+
+
+        const status = await pool.query(
+            `UPDATE task_value
+   SET status = 'completed'
+   WHERE task_id IN ($1, $2, $3 , $4)
+     AND transactions_id = $5`,
+            [38, 39, 40, 41 , transactionId]
+        );
+
+
+
+
+
+
+
         res.json(result.rows[0]);
     } catch (error) {
         console.error('Error fetching appraisal:', error);
@@ -35,9 +50,9 @@ router.post('/order', authenticateToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         const { transactionId, propertyId, purchasePrice, appraisalCost } = req.body;
-        
+
         // Insert appraisal
         const appraisalResult = await client.query(`
             INSERT INTO appraisals (
@@ -45,15 +60,15 @@ router.post('/order', authenticateToken, async (req, res) => {
             ) VALUES ($1, $2, $3, $4, 'pending')
             RETURNING *
         `, [transactionId, propertyId, purchasePrice, appraisalCost || 500]);
-        
+
         const appraisal = appraisalResult.rows[0];
-        
+
         // Log event
         await client.query(`
             INSERT INTO appraisal_events (appraisal_id, event_type, event_description, created_by)
             VALUES ($1, 'ordered', 'Appraisal ordered by lender', $2)
         `, [appraisal.id, req.user.id]);
-        
+
         // Update transaction status
         await client.query(`
             UPDATE transactions 
@@ -62,7 +77,7 @@ router.post('/order', authenticateToken, async (req, res) => {
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = $1
         `, [transactionId]);
-        
+
         await client.query('COMMIT');
         res.status(201).json(appraisal);
     } catch (error) {
@@ -79,10 +94,10 @@ router.patch('/:id/schedule', authenticateToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         const { id } = req.params;
         const { scheduledDate, appraiserId } = req.body;
-        
+
         const result = await client.query(`
             UPDATE appraisals 
             SET scheduled_date = $1, 
@@ -92,13 +107,13 @@ router.patch('/:id/schedule', authenticateToken, async (req, res) => {
             WHERE id = $3
             RETURNING *
         `, [scheduledDate, appraiserId, id]);
-        
+
         // Log event
         await client.query(`
             INSERT INTO appraisal_events (appraisal_id, event_type, event_description, created_by)
             VALUES ($1, 'scheduled', $2, $3)
         `, [id, `Appraisal scheduled for ${scheduledDate}`, req.user.id]);
-        
+
         await client.query('COMMIT');
         res.json(result.rows[0]);
     } catch (error) {
@@ -115,20 +130,20 @@ router.patch('/:id/complete', authenticateToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         const { id } = req.params;
         const { appraisedValue, reportUrl, appraiserNotes } = req.body;
-        
+
         // Get current appraisal
         const currentResult = await client.query(
             'SELECT purchase_price FROM appraisals WHERE id = $1',
             [id]
         );
-        
+
         const purchasePrice = parseFloat(currentResult.rows[0].purchase_price);
         const appraisalDifference = purchasePrice - parseFloat(appraisedValue);
         const status = appraisalDifference > 0 ? 'low_appraisal' : 'approved';
-        
+
         const result = await client.query(`
             UPDATE appraisals 
             SET appraised_value = $1,
@@ -141,17 +156,17 @@ router.patch('/:id/complete', authenticateToken, async (req, res) => {
             WHERE id = $6
             RETURNING *
         `, [appraisedValue, reportUrl, appraiserNotes, appraisalDifference, status, id]);
-        
+
         // Log event
-        const eventDesc = status === 'low_appraisal' 
+        const eventDesc = status === 'low_appraisal'
             ? `Appraisal completed - Value $${appraisedValue} is $${appraisalDifference} below purchase price`
             : `Appraisal completed - Value $${appraisedValue} meets or exceeds purchase price`;
-            
+
         await client.query(`
             INSERT INTO appraisal_events (appraisal_id, event_type, event_description, created_by)
             VALUES ($1, 'completed', $2, $3)
         `, [id, eventDesc, req.user.id]);
-        
+
         await client.query('COMMIT');
         res.json(result.rows[0]);
     } catch (error) {
@@ -168,15 +183,15 @@ router.patch('/:id/resolve', authenticateToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         const { id } = req.params;
         const { resolutionType, newPurchasePrice } = req.body;
-        
+
         let status = 'approved';
         if (resolutionType === 'contract_cancelled') {
             status = 'cancelled';
         }
-        
+
         const result = await client.query(`
             UPDATE appraisals 
             SET resolution_type = $1,
@@ -186,9 +201,9 @@ router.patch('/:id/resolve', authenticateToken, async (req, res) => {
             WHERE id = $4
             RETURNING *
         `, [resolutionType, newPurchasePrice, status, id]);
-        
+
         const appraisal = result.rows[0];
-        
+
         // If price reduced, update contract
         if (resolutionType === 'price_reduced' && newPurchasePrice) {
             await client.query(`
@@ -198,7 +213,7 @@ router.patch('/:id/resolve', authenticateToken, async (req, res) => {
                 WHERE id = $2
             `, [newPurchasePrice, appraisal.transaction_id]);
         }
-        
+
         // Log event
         const resolutionMessages = {
             'proceed_as_is': 'Proceeding with original purchase price',
@@ -206,12 +221,12 @@ router.patch('/:id/resolve', authenticateToken, async (req, res) => {
             'buyer_pays_difference': 'Buyer will pay the difference in cash',
             'contract_cancelled': 'Contract cancelled due to low appraisal'
         };
-        
+
         await client.query(`
             INSERT INTO appraisal_events (appraisal_id, event_type, event_description, created_by)
             VALUES ($1, 'resolved', $2, $3)
         `, [id, resolutionMessages[resolutionType], req.user.id]);
-        
+
         await client.query('COMMIT');
         res.json(result.rows[0]);
     } catch (error) {
@@ -227,7 +242,7 @@ router.patch('/:id/resolve', authenticateToken, async (req, res) => {
 router.get('/appraisers/recommended', authenticateToken, async (req, res) => {
     try {
         const { zipCode } = req.query;
-        
+
         const result = await pool.query(`
             SELECT * FROM recommended_appraisers
             WHERE is_active = true
@@ -235,7 +250,7 @@ router.get('/appraisers/recommended', authenticateToken, async (req, res) => {
             ORDER BY rating DESC, total_appraisals DESC
             LIMIT 10
         `, [JSON.stringify([zipCode])]);
-        
+
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching appraisers:', error);
@@ -247,7 +262,7 @@ router.get('/appraisers/recommended', authenticateToken, async (req, res) => {
 router.get('/:id/timeline', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         const result = await pool.query(`
             SELECT ae.*, u.first_name as created_by_name
             FROM appraisal_events ae
@@ -255,7 +270,7 @@ router.get('/:id/timeline', authenticateToken, async (req, res) => {
             WHERE ae.appraisal_id = $1
             ORDER BY ae.created_at DESC
         `, [id]);
-        
+
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching timeline:', error);

@@ -40,6 +40,18 @@ class TitleInsurance {
     ];
 
     const result = await db.query(query, values);
+
+
+    await db.query(
+      `UPDATE task_value 
+   SET status = 'completed'
+   WHERE task_id IN ($1, $2, $3, $4)
+     AND transactions_id = $5`,
+      [46, 47, 48, 49, transaction_id]
+    );
+
+
+
     return result.rows[0];
   }
 

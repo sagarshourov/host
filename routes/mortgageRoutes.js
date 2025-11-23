@@ -44,6 +44,17 @@ router.post('/applications', async (req, res) => {
       [applicationResult.rows[0].id, 550, transaction_id] // $500-600 appraisal fee
     );
 
+
+
+            const status = await pool.query(
+                `UPDATE task_value
+       SET status = 'completed'
+       WHERE task_id IN ($1, $2, $3 , $4)
+         AND transactions_id = $5`,
+                [34, 35, 36, 37 , transaction_id]
+            );
+    
+
     /// await client.query('COMMIT');
 
     res.json({

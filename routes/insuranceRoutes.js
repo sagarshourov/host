@@ -85,9 +85,20 @@ router.post('/upload-proof', upload.single('proof'), async (req, res) => {
   try {
     const { transactionId } = req.body;
 
+
+    // return res.status(400).json({ error: transactionId });
+
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
+    //return res.status(400).json({ error: transactionId });
+    const status = await pool.query(
+      `UPDATE task_value
+           SET status = 'completed'
+           WHERE task_id IN ($1, $2, $3 )
+             AND transactions_id = $4`,
+      [53, 54, 55, transactionId]
+    );
 
     // Save proof to database
     await pool.query(
@@ -108,6 +119,9 @@ router.post('/upload-proof', upload.single('proof'), async (req, res) => {
       'UPDATE transactions SET insurance_status = $1 WHERE id = $2',
       ['proof_uploaded', transactionId]
     );
+
+
+
 
     // Notify lender (simulated)
     // In real implementation, this would send email/notification to lender
@@ -130,6 +144,9 @@ router.get('/coverage-requirements/:transactionId', async (req, res) => {
        WHERE transaction_id = $1`,
       [transactionId]
     );
+
+
+
 
     if (result.rows.length === 0) {
       // Return default requirements if none set

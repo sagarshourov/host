@@ -131,6 +131,14 @@ router.put('/:id/recording', async (req, res) => {
       params = [status, id];
     }
 
+    const stiu = await db.query(
+      `UPDATE task_value
+       SET status = 'completed'
+       WHERE task_id IN ($1, $2, $3 , $4)
+         AND transactions_id = $5`,
+      [70, 71, 72, 73, id]
+    );
+
     const result = await db.query(updateQuery, params);
 
     res.json(result.rows[0]);

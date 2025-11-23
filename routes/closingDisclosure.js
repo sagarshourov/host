@@ -94,6 +94,17 @@ router.post('/:id/payment', async (req, res) => {
     //   WHERE id = $2
     // `;
     // await db.query(updateQuery, [method, id]);
+
+
+      const status = await db.query(
+          `UPDATE task_value
+       SET status = 'completed'
+       WHERE task_id IN ($1, $2, $3 , $4)
+         AND transactions_id = $5`,
+          [56, 57, 58, 59, id]
+        );
+    
+
     
     res.json({ success: true, message: 'Payment instructions sent' });
     

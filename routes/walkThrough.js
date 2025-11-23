@@ -7,33 +7,33 @@ const db = require('../config/database');
 router.get('/:transactionId', async (req, res) => {
     try {
         const { transactionId } = req.params;
-        
+
         const walkThroughQuery = `
             SELECT * FROM walk_throughs 
             WHERE transaction_id = $1
         `;
         const walkThroughResult = await db.query(walkThroughQuery, [transactionId]);
-        
+
         if (walkThroughResult.rows.length === 0) {
             return res.json({ exists: false });
         }
-        
+
         const walkThrough = walkThroughResult.rows[0];
-        
+
         // Get checklist items
         const checklistQuery = `
             SELECT * FROM walk_through_checklist 
             WHERE walk_through_id = $1
         `;
         const checklistResult = await db.query(checklistQuery, [walkThrough.id]);
-        
+
         // Get issues
         const issuesQuery = `
             SELECT * FROM walk_through_issues 
             WHERE walk_through_id = $1
         `;
         const issuesResult = await db.query(issuesQuery, [walkThrough.id]);
-        
+
         res.json({
             exists: true,
             walkThrough: {
@@ -42,7 +42,7 @@ router.get('/:transactionId', async (req, res) => {
                 issues: issuesResult.rows
             }
         });
-        
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -52,14 +52,14 @@ router.get('/:transactionId', async (req, res) => {
 router.post('/schedule', async (req, res) => {
     try {
         const { transaction_id, scheduled_date } = req.body;
-        
+
         const query = `
             INSERT INTO walk_throughs (transaction_id, scheduled_date, status)
             VALUES ($1, $2, 'scheduled')
             RETURNING *
         `;
         const result = await db.query(query, [transaction_id, scheduled_date]);
-        
+
         // Create default checklist items
         const defaultChecklist = [
             { category: 'Repairs', item_name: 'Verify all agreed repairs completed' },
@@ -71,14 +71,14 @@ router.post('/schedule', async (req, res) => {
             { category: 'Appliances', item_name: 'Test all included appliances' },
             { category: 'Exterior', item_name: 'Check exterior condition' }
         ];
-        
+
         for (const item of defaultChecklist) {
             await db.query(
                 'INSERT INTO walk_through_checklist (walk_through_id, category, item_name) VALUES ($1, $2, $3)',
                 [result.rows[0].id, item.category, item.item_name]
             );
         }
-        
+
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -90,7 +90,7 @@ router.put('/checklist/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { status, notes, photo_url } = req.body;
-        
+
         const query = `
             UPDATE walk_through_checklist 
             SET status = $1, notes = $2, photo_url = $3
@@ -98,7 +98,7 @@ router.put('/checklist/:id', async (req, res) => {
             RETURNING *
         `;
         const result = await db.query(query, [status, notes, photo_url, id]);
-        
+
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -109,20 +109,20 @@ router.put('/checklist/:id', async (req, res) => {
 router.post('/issues', async (req, res) => {
     try {
         const { walk_through_id, description, photo_urls, severity } = req.body;
-        
+
         const query = `
             INSERT INTO walk_through_issues (walk_through_id, description, photo_urls, severity)
             VALUES ($1, $2, $3, $4)
             RETURNING *
         `;
         const result = await db.query(query, [walk_through_id, description, photo_urls, severity]);
-        
+
         // Update walk-through to indicate issues found
         await db.query(
             'UPDATE walk_throughs SET issues_found = true WHERE id = $1',
             [walk_through_id]
         );
-        
+
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -134,7 +134,7 @@ router.put('/:id/complete', async (req, res) => {
     try {
         const { id } = req.params;
         const { buyer_notes, agent_notes } = req.body;
-        
+
         const query = `
             UPDATE walk_throughs 
             SET status = 'completed', completed_date = CURRENT_TIMESTAMP, 
@@ -143,7 +143,15 @@ router.put('/:id/complete', async (req, res) => {
             RETURNING *
         `;
         const result = await db.query(query, [buyer_notes, agent_notes, id]);
-        
+
+        const status = await db.query(
+            `UPDATE task_value
+               SET status = 'completed'
+               WHERE task_id IN ($1, $2, $3 , $4)
+                 AND transactions_id = $5`,
+            [60, 61, 62, 63, id]
+        );
+
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -7,7 +7,7 @@ const db = require('../config/database');
 router.get('/transaction/:transactionId', async (req, res) => {
     try {
         const { transactionId } = req.params;
-        
+
         const appointment = await db.query(`
             SELECT ca.*, 
                    json_agg(cd) as documents
@@ -16,6 +16,10 @@ router.get('/transaction/:transactionId', async (req, res) => {
             WHERE ca.transaction_id = $1
             GROUP BY ca.id
         `, [transactionId]);
+
+
+
+
 
         res.json({
             success: true,
@@ -46,7 +50,7 @@ router.post('/', async (req, res) => {
         );
 
         let appointmentId;
-        
+
         if (existingAppointment.rows.length > 0) {
             // Update existing appointment
             appointmentId = existingAppointment.rows[0].id;
@@ -74,6 +78,13 @@ router.post('/', async (req, res) => {
                 `, [appointmentId, doc.name, doc.type, doc.previewAvailable || false]);
             }
         }
+        const status = await db.query(
+            `UPDATE task_value
+   SET status = 'completed'
+   WHERE task_id IN ($1, $2, $3)
+     AND transactions_id = $4`,
+            [64, 65, 66, transaction_id]
+        );
 
         res.json({
             success: true,
