@@ -162,7 +162,6 @@ app.use('/api/tours', require('./routes/tourRoutes'));
 
 app.use('/api/earnest-money', require('./routes/earnestMoneyRoutes'));
 
-
 app.use('/api/inspection', require('./routes/inspectionsRoutes'));
 
 app.use('/api/mortgage', require('./routes/mortgageRoutes'));
@@ -190,6 +189,12 @@ app.use('/api/documentsign', require('./routes/signingRoutes'));
 
 
 app.use('/api/funding', require('./routes/fundingRoutes'));
+
+app.use('/api/completion', require('./routes/transactionCompletion'));
+
+app.use('/api/post-closing', require('./routes/postClosingRoutes'));
+
+
 
 
 

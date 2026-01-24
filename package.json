@@ -28,6 +28,7 @@
         "pdf-parse": "^2.4.5",
         "pdfkit": "^0.17.2",
         "pg": "^8.11.3",
+        "sequelize": "^6.37.7",
         "uuid": "^9.0.1"
     },
     "devDependencies": {

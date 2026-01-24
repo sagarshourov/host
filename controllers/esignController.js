@@ -48,7 +48,7 @@ const createEsignDocument = async (req, res) => {
             standStillEndDate,
             additionalProvisions,
             userId,
-            offerId
+            transactions_id
         } = req.body;
 
         const query = `
@@ -109,12 +109,12 @@ const createEsignDocument = async (req, res) => {
             standStillEndDate || null,
             additionalProvisions || null,
             userId || null,
-            offerId || null
+            transactions_id || null
         ];
 
         const result = await pool.query(query, values);
 
-        const transactions_id = parseInt(offerId);
+      //  const transactions_id = parseInt(transactions_id);
 
 
         await pool.query(
@@ -226,7 +226,7 @@ const updateEsignDocument = async (req, res) => {
             standStillEndDate,
             additionalProvisions,
             status,
-            offerId
+            transactions_id
         } = req.body;
 
         const query = `
@@ -289,7 +289,7 @@ const updateEsignDocument = async (req, res) => {
             standStillEndDate || null,
             additionalProvisions || null,
             status || 'draft',
-            offerId || null,
+            transactions_id || null,
             docId
         ];
 
@@ -301,7 +301,7 @@ const updateEsignDocument = async (req, res) => {
             return res.status(404).json({ message: 'Document not found' });
         }
 
-       const transactions_id = parseInt(offerId);
+    //   const transactions_id = parseInt(transactions_id);
 
 
         await pool.query(
